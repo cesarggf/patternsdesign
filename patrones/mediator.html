@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mediator — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#7c3aed">Comportamiento</div>
+    <h1>Mediator</h1>
+    <p class="patron-desc">Definir un objeto que encapsule cómo interactúan un conjunto de objetos, promoviendo el bajo acoplamiento.</p>
+    <span class="patron-badge pb-Comportamiento">Comportamiento</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Mediator centraliza las comunicaciones entre objetos (colegas) para evitar que se referencien directamente. Cada colega solo conoce al mediador; cuando necesita comunicarse con otro, lo hace a través del mediador. Reduce las dependencias de n² a n, pero puede convertirse en un punto de fallo central.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Chat grupal</strong>
+      <p style="margin-top:.35rem">Los usuarios no se envían mensajes directamente; todos pasan por el servidor de chat (mediador).</p>
+    </div>
+    <div>
+      <strong>2. Sistema de control de tráfico aéreo</strong>
+      <p style="margin-top:.35rem">Las aeronaves no se comunican entre sí; toda coordinación pasa por la torre de control.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>class SalaChat {
+  constructor() { this.usuarios = []; }
+
+  unirse(usuario) {
+    this.usuarios.push(usuario);
+    this.notificar(`${usuario.nombre} se unió al chat`, null);
+  }
+
+  enviarMensaje(mensaje, emisor) {
+    this.usuarios
+      .filter(u =&gt; u !== emisor)
+      .forEach(u =&gt; u.recibirMensaje(`${emisor.nombre}: ${mensaje}`));
+  }
+
+  notificar(mensaje, excluir) {
+    this.usuarios
+      .filter(u =&gt; u !== excluir)
+      .forEach(u =&gt; u.recibirMensaje(`[Sistema] ${mensaje}`));
+  }
+}
+
+class Usuario {
+  constructor(nombre, sala) {
+    this.nombre = nombre;
+    this.sala = sala;
+    sala.unirse(this);
+  }
+  enviar(mensaje) { this.sala.enviarMensaje(mensaje, this); }
+  recibirMensaje(msg) { console.log(`${this.nombre} recibe: ${msg}`); }
+}
+
+const sala  = new SalaChat();
+const cesar = new Usuario('Cesar', sala);
+const ana   = new Usuario('Ana', sala);
+cesar.enviar('Hola a todos!');</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public interface Mediador {
+    void enviarMensaje(String mensaje, Usuario emisor);
+    void unirse(Usuario usuario);
+}
+
+public class SalaChat implements Mediador {
+    private List&lt;Usuario&gt; usuarios = new ArrayList&lt;&gt;();
+
+    public void unirse(Usuario u) { usuarios.add(u); }
+
+    public void enviarMensaje(String mensaje, Usuario emisor) {
+        usuarios.stream()
+            .filter(u -&gt; u != emisor)
+            .forEach(u -&gt; u.recibirMensaje(emisor.getNombre() + &quot;: &quot; + mensaje));
+    }
+}
+
+public class Usuario {
+    private String nombre;
+    private Mediador sala;
+
+    public Usuario(String nombre, Mediador sala) {
+        this.nombre = nombre; this.sala = sala; sala.unirse(this);
+    }
+    public void enviar(String msg) { sala.enviarMensaje(msg, this); }
+    public void recibirMensaje(String msg) { System.out.println(nombre+&quot;: &quot;+msg); }
+    public String getNombre() { return nombre; }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class Mediador { <<interface>> +enviarMensaje() +unirse() }
+    class SalaChat { -usuarios[] +enviarMensaje() +unirse() }
+    class Usuario  { -nombre -sala +enviar() +recibirMensaje() }
+    Mediador <|.. SalaChat
+    Usuario --> Mediador : comunica a través de
+    SalaChat --> Usuario : notifica</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Si las interacciones entre objetos son pocas y simples; la indirección no aporta.</li><li>Cuando el mediador acumula demasiada lógica y se convierte en un objeto 'dios'.</li><li>Si los colegas necesitan comunicarse directamente por razones de rendimiento.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

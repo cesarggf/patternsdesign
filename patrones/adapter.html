@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Adapter — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#d97706">Estructural</div>
+    <h1>Adapter</h1>
+    <p class="patron-desc">Convertir la interfaz de una clase en otra que el cliente espera, permitiendo que clases incompatibles trabajen juntas.</p>
+    <span class="patron-badge pb-Estructural">Estructural</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Adapter actúa como un traductor entre dos interfaces incompatibles. Envuelve un objeto existente (adaptee) y expone la interfaz que el cliente necesita, delegando las llamadas al objeto envuelto con las transformaciones necesarias. Existen dos variantes: Adapter de objeto (composición) y Adapter de clase (herencia múltiple).</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Integración con API externa</strong>
+      <p style="margin-top:.35rem">Tu sistema espera una interfaz `IPago` pero la librería de terceros tiene métodos distintos.</p>
+    </div>
+    <div>
+      <strong>2. Migración de almacenamiento</strong>
+      <p style="margin-top:.35rem">Adaptar un repositorio legacy con interfaz distinta para que funcione con el nuevo contrato.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>// Interfaz esperada por el cliente
+class IPago {
+  pagar(monto) { throw new Error('Abstracto'); }
+}
+
+// Clase existente con interfaz incompatible (librería externa)
+class PayPalSDK {
+  realizarTransaccion(cantidad, moneda) {
+    console.log(`PayPal: ${cantidad} ${moneda} procesados`);
+  }
+}
+
+// Adapter
+class AdapterPayPal extends IPago {
+  constructor() {
+    super();
+    this.paypal = new PayPalSDK();
+  }
+  pagar(monto) {
+    // Traduce la llamada
+    this.paypal.realizarTransaccion(monto, 'EUR');
+  }
+}
+
+// Cliente usa siempre IPago
+function procesarCompra(pasarela, monto) {
+  pasarela.pagar(monto);
+}
+
+procesarCompra(new AdapterPayPal(), 99.99);</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>// Interfaz objetivo
+public interface IPago {
+    void pagar(double monto);
+}
+
+// Clase incompatible (librería externa)
+public class PayPalSDK {
+    public void realizarTransaccion(double cantidad, String moneda) {
+        System.out.println(&quot;PayPal: &quot; + cantidad + &quot; &quot; + moneda);
+    }
+}
+
+// Adapter
+public class AdapterPayPal implements IPago {
+    private PayPalSDK paypal = new PayPalSDK();
+
+    @Override
+    public void pagar(double monto) {
+        paypal.realizarTransaccion(monto, &quot;EUR&quot;);
+    }
+}
+
+// Cliente
+public class Tienda {
+    public void procesarCompra(IPago pasarela, double monto) {
+        pasarela.pagar(monto);
+    }
+    public static void main(String[] args) {
+        new Tienda().procesarCompra(new AdapterPayPal(), 99.99);
+    }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class IPago { <<interface>> +pagar(monto) }
+    class AdapterPayPal { -paypal PayPalSDK +pagar(monto) }
+    class PayPalSDK { +realizarTransaccion(cantidad, moneda) }
+    class Cliente { +procesarCompra(pasarela, monto) }
+    IPago <|.. AdapterPayPal
+    AdapterPayPal --> PayPalSDK : delega
+    Cliente --> IPago : usa</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando puedes modificar la clase original directamente sin romper otros contratos.</li><li>Si la adaptación requiere cambios muy profundos en el comportamiento, considera Facade o Decorator.</li><li>Demasiados Adapters en cadena dificultan el rastreo de errores y el debugging.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

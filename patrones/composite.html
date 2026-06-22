@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Composite — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#d97706">Estructural</div>
+    <h1>Composite</h1>
+    <p class="patron-desc">Componer objetos en estructuras de árbol para representar jerarquías parte-todo y tratar objetos individuales y compuestos de manera uniforme.</p>
+    <span class="patron-badge pb-Estructural">Estructural</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Composite permite tratar un objeto individual y una colección de objetos de la misma manera a través de una interfaz común. Los objetos 'hoja' realizan el trabajo real; los objetos 'compuestos' delegan a sus hijos. Ideal para estructuras recursivas como sistemas de archivos, menús anidados o árboles de widgets.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Sistema de archivos</strong>
+      <p style="margin-top:.35rem">Carpetas y archivos comparten la operación `calcularTamano()`, una carpeta suma el tamaño de sus hijos.</p>
+    </div>
+    <div>
+      <strong>2. Árbol de menú UI</strong>
+      <p style="margin-top:.35rem">Items de menú simples y submenús anidados se renderizan con la misma interfaz.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>// Componente
+class ElementoSistema {
+  constructor(nombre) { this.nombre = nombre; }
+  calcularTamano() { throw new Error('Abstracto'); }
+  mostrar(indent = '') { throw new Error('Abstracto'); }
+}
+
+// Hoja
+class Archivo extends ElementoSistema {
+  constructor(nombre, tamano) { super(nombre); this.tamano = tamano; }
+  calcularTamano() { return this.tamano; }
+  mostrar(indent = '') { console.log(`${indent}📄 ${this.nombre} (${this.tamano}KB)`); }
+}
+
+// Compuesto
+class Carpeta extends ElementoSistema {
+  constructor(nombre) { super(nombre); this.hijos = []; }
+  agregar(elemento) { this.hijos.push(elemento); }
+  calcularTamano() { return this.hijos.reduce((s, h) =&gt; s + h.calcularTamano(), 0); }
+  mostrar(indent = '') {
+    console.log(`${indent}📁 ${this.nombre}`);
+    this.hijos.forEach(h =&gt; h.mostrar(indent + '  '));
+  }
+}
+
+// Uso
+const raiz = new Carpeta('proyecto');
+const src  = new Carpeta('src');
+src.agregar(new Archivo('index.js', 12));
+src.agregar(new Archivo('app.js', 8));
+raiz.agregar(src);
+raiz.agregar(new Archivo('README.md', 2));
+raiz.mostrar();
+console.log('Total:', raiz.calcularTamano(), 'KB');</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public abstract class ElementoSistema {
+    protected String nombre;
+    public ElementoSistema(String nombre) { this.nombre = nombre; }
+    public abstract int calcularTamano();
+    public abstract void mostrar(String indent);
+}
+
+public class Archivo extends ElementoSistema {
+    private int tamano;
+    public Archivo(String nombre, int tamano) {
+        super(nombre); this.tamano = tamano;
+    }
+    public int calcularTamano() { return tamano; }
+    public void mostrar(String indent) {
+        System.out.println(indent + &quot;📄 &quot; + nombre + &quot; (&quot; + tamano + &quot;KB)&quot;);
+    }
+}
+
+public class Carpeta extends ElementoSistema {
+    private List&lt;ElementoSistema&gt; hijos = new ArrayList&lt;&gt;();
+    public Carpeta(String nombre) { super(nombre); }
+    public void agregar(ElementoSistema e) { hijos.add(e); }
+    public int calcularTamano() {
+        return hijos.stream().mapToInt(ElementoSistema::calcularTamano).sum();
+    }
+    public void mostrar(String indent) {
+        System.out.println(indent + &quot;📁 &quot; + nombre);
+        hijos.forEach(h -&gt; h.mostrar(indent + &quot;  &quot;));
+    }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class Componente { <<abstract>> +calcularTamano() +mostrar() }
+    class Archivo { -tamano +calcularTamano() +mostrar() }
+    class Carpeta { -hijos[] +agregar() +calcularTamano() +mostrar() }
+    Componente <|-- Archivo
+    Componente <|-- Carpeta
+    Carpeta o--> Componente : contiene</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando la jerarquía nunca tendrá más de un nivel; una simple lista es suficiente.</li><li>Si los componentes hoja y compuesto tienen operaciones muy distintas, forzar una interfaz común resulta artificial.</li><li>Para estructuras planas donde la recursividad añade overhead sin beneficio real.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

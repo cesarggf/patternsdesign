@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Patrones de Diseño GoF — Referencia en Español</title>
+<link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">🏗 Patrones de <span>Diseño</span></a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Patrones de Diseño GoF</h1>
+  <p>Referencia completa de los 23 patrones clásicos con ejemplos en JavaScript y Java, diagramas y guías de uso.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><strong>23</strong><span>Patrones</span></div>
+    <div class="hero-stat"><strong>3</strong><span>Categorías</span></div>
+    <div class="hero-stat"><strong>46</strong><span>Ejemplos de código</span></div>
+    <div class="hero-stat"><strong>ES</strong><span>100% en español</span></div>
+  </div>
+</div>
+
+<div class="filters">
+  <button class="filter-btn active" data-cat="Todos" onclick="filtrar(this)">Todos (23)</button>
+  <button class="filter-btn" data-cat="Creacional" onclick="filtrar(this)">🟢 Creacionales (5)</button>
+  <button class="filter-btn" data-cat="Estructural" onclick="filtrar(this)">🟡 Estructurales (7)</button>
+  <button class="filter-btn" data-cat="Comportamiento" onclick="filtrar(this)">🟣 Comportamiento (11)</button>
+</div>
+
+<div class="grid-section">
+
+  <div class="cat-creacional" id="sec-Creacional">
+    <div class="category-title">🟢 Patrones Creacionales</div>
+    <div class="cards">
+      <a href="patrones/singleton.html" class="card creacional" data-cat="Creacional">
+        <span class="card-badge badge-Creacional">Creacional</span>
+        <h3>Singleton</h3>
+        <p>Garantiza una única instancia y punto de acceso global a ella.</p>
+      </a>
+      <a href="patrones/factory-method.html" class="card creacional" data-cat="Creacional">
+        <span class="card-badge badge-Creacional">Creacional</span>
+        <h3>Factory Method</h3>
+        <p>Delega la creación de objetos a las subclases según el tipo requerido.</p>
+      </a>
+      <a href="patrones/abstract-factory.html" class="card creacional" data-cat="Creacional">
+        <span class="card-badge badge-Creacional">Creacional</span>
+        <h3>Abstract Factory</h3>
+        <p>Crea familias de objetos relacionados sin especificar clases concretas.</p>
+      </a>
+      <a href="patrones/builder.html" class="card creacional" data-cat="Creacional">
+        <span class="card-badge badge-Creacional">Creacional</span>
+        <h3>Builder</h3>
+        <p>Construye objetos complejos paso a paso separando construcción de representación.</p>
+      </a>
+      <a href="patrones/prototype.html" class="card creacional" data-cat="Creacional">
+        <span class="card-badge badge-Creacional">Creacional</span>
+        <h3>Prototype</h3>
+        <p>Crea nuevos objetos clonando una instancia existente como prototipo.</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="cat-estructural" id="sec-Estructural">
+    <div class="category-title">🟡 Patrones Estructurales</div>
+    <div class="cards">
+      <a href="patrones/adapter.html" class="card estructural" data-cat="Estructural">
+        <span class="card-badge badge-Estructural">Estructural</span>
+        <h3>Adapter</h3>
+        <p>Convierte la interfaz de una clase en otra que el cliente espera.</p>
+      </a>
+      <a href="patrones/bridge.html" class="card estructural" data-cat="Estructural">
+        <span class="card-badge badge-Estructural">Estructural</span>
+        <h3>Bridge</h3>
+        <p>Desacopla abstracción de implementación para que ambas varíen independientemente.</p>
+      </a>
+      <a href="patrones/composite.html" class="card estructural" data-cat="Estructural">
+        <span class="card-badge badge-Estructural">Estructural</span>
+        <h3>Composite</h3>
+        <p>Compone objetos en árbol para representar jerarquías parte-todo.</p>
+      </a>
+      <a href="patrones/decorator.html" class="card estructural" data-cat="Estructural">
+        <span class="card-badge badge-Estructural">Estructural</span>
+        <h3>Decorator</h3>
+        <p>Añade responsabilidades a un objeto dinámicamente como alternativa a la herencia.</p>
+      </a>
+      <a href="patrones/facade.html" class="card estructural" data-cat="Estructural">
+        <span class="card-badge badge-Estructural">Estructural</span>
+        <h3>Facade</h3>
+        <p>Proporciona una interfaz simplificada a un subsistema complejo.</p>
+      </a>
+      <a href="patrones/flyweight.html" class="card estructural" data-cat="Estructural">
+        <span class="card-badge badge-Estructural">Estructural</span>
+        <h3>Flyweight</h3>
+        <p>Usa compartición para soportar eficientemente grandes cantidades de objetos.</p>
+      </a>
+      <a href="patrones/proxy.html" class="card estructural" data-cat="Estructural">
+        <span class="card-badge badge-Estructural">Estructural</span>
+        <h3>Proxy</h3>
+        <p>Proporciona un sustituto de otro objeto para controlar el acceso a él.</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="cat-comportamiento" id="sec-Comportamiento">
+    <div class="category-title">🟣 Patrones de Comportamiento</div>
+    <div class="cards">
+      <a href="patrones/chain-of-responsibility.html" class="card comportamiento" data-cat="Comportamiento">
+        <span class="card-badge badge-Comportamiento">Comportamiento</span>
+        <h3>Chain of Responsibility</h3>
+        <p>Pasa solicitudes a lo largo de una cadena de manejadores.</p>
+      </a>
+      <a href="patrones/command.html" class="card comportamiento" data-cat="Comportamiento">
+        <span class="card-badge badge-Comportamiento">Comportamiento</span>
+        <h3>Command</h3>
+        <p>Encapsula una solicitud como objeto para soportar undo, colas y logging.</p>
+      </a>
+      <a href="patrones/iterator.html" class="card comportamiento" data-cat="Comportamiento">
+        <span class="card-badge badge-Comportamiento">Comportamiento</span>
+        <h3>Iterator</h3>
+        <p>Accede secuencialmente a elementos de una colección sin exponer su estructura.</p>
+      </a>
+      <a href="patrones/mediator.html" class="card comportamiento" data-cat="Comportamiento">
+        <span class="card-badge badge-Comportamiento">Comportamiento</span>
+        <h3>Mediator</h3>
+        <p>Centraliza las comunicaciones entre objetos para reducir dependencias.</p>
+      </a>
+      <a href="patrones/memento.html" class="card comportamiento" data-cat="Comportamiento">
+        <span class="card-badge badge-Comportamiento">Comportamiento</span>
+        <h3>Memento</h3>
+        <p>Captura el estado de un objeto para poder restaurarlo sin violar encapsulamiento.</p>
+      </a>
+      <a href="patrones/observer.html" class="card comportamiento" data-cat="Comportamiento">
+        <span class="card-badge badge-Comportamiento">Comportamiento</span>
+        <h3>Observer</h3>
+        <p>Notifica automáticamente a dependientes cuando un objeto cambia de estado.</p>
+      </a>
+      <a href="patrones/state.html" class="card comportamiento" data-cat="Comportamiento">
+        <span class="card-badge badge-Comportamiento">Comportamiento</span>
+        <h3>State</h3>
+        <p>Altera el comportamiento de un objeto según su estado interno actual.</p>
+      </a>
+      <a href="patrones/strategy.html" class="card comportamiento" data-cat="Comportamiento">
+        <span class="card-badge badge-Comportamiento">Comportamiento</span>
+        <h3>Strategy</h3>
+        <p>Define algoritmos intercambiables que varían independientemente del cliente.</p>
+      </a>
+      <a href="patrones/template-method.html" class="card comportamiento" data-cat="Comportamiento">
+        <span class="card-badge badge-Comportamiento">Comportamiento</span>
+        <h3>Template Method</h3>
+        <p>Define el esqueleto de un algoritmo dejando que subclases completen pasos variables.</p>
+      </a>
+      <a href="patrones/visitor.html" class="card comportamiento" data-cat="Comportamiento">
+        <span class="card-badge badge-Comportamiento">Comportamiento</span>
+        <h3>Visitor</h3>
+        <p>Añade operaciones a una jerarquía de objetos sin modificar sus clases.</p>
+      </a>
+      <a href="patrones/interpreter.html" class="card comportamiento" data-cat="Comportamiento">
+        <span class="card-badge badge-Comportamiento">Comportamiento</span>
+        <h3>Interpreter</h3>
+        <p>Define una gramática e intérprete para procesar sentencias de un lenguaje.</p>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español &mdash; GitHub Pages Ready</p>
+</footer>
+
+<script>
+function filtrar(btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const cat = btn.dataset.cat;
+  document.querySelectorAll('.card').forEach(card => {
+    const show = cat === 'Todos' || card.dataset.cat === cat;
+    card.style.display = show ? '' : 'none';
+  });
+  ['Creacional','Estructural','Comportamiento'].forEach(c => {
+    const sec = document.getElementById('sec-' + c);
+    if (cat === 'Todos' || cat === c) sec.style.display = '';
+    else sec.style.display = 'none';
+  });
+}
+</script>
+</body>
+</html>

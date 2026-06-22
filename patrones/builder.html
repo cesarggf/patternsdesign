@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Builder — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#059669">Creacional</div>
+    <h1>Builder</h1>
+    <p class="patron-desc">Separar la construcción de un objeto complejo de su representación para crear distintas representaciones con el mismo proceso.</p>
+    <span class="patron-badge pb-Creacional">Creacional</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Builder permite construir objetos paso a paso. El Director controla el orden de construcción; el Builder concreto implementa cada paso. El resultado final se obtiene al final del proceso. Es ideal cuando un objeto requiere muchos parámetros opcionales o pasos de configuración.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Constructor de consultas SQL</strong>
+      <p style="margin-top:.35rem">Armar dinámicamente consultas SELECT con cláusulas WHERE, ORDER BY y LIMIT opcionales.</p>
+    </div>
+    <div>
+      <strong>2. Generador de reportes PDF</strong>
+      <p style="margin-top:.35rem">Un reporte puede incluir encabezado, gráficas, tablas y pie de página en distintas combinaciones.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>class ConsultaSQL {
+  constructor() {
+    this.tabla = ''; this.condiciones = [];
+    this.columnas = ['*']; this.limite = null;
+  }
+}
+
+class ConstructorConsulta {
+  constructor() { this.consulta = new ConsultaSQL(); }
+
+  desde(tabla)       { this.consulta.tabla = tabla;             return this; }
+  seleccionar(...cols){ this.consulta.columnas = cols;          return this; }
+  donde(condicion)   { this.consulta.condiciones.push(condicion); return this; }
+  limitar(n)         { this.consulta.limite = n;                return this; }
+
+  construir() {
+    let sql = `SELECT ${this.consulta.columnas.join(', ')} FROM ${this.consulta.tabla}`;
+    if (this.consulta.condiciones.length)
+      sql += ` WHERE ${this.consulta.condiciones.join(' AND ')}`;
+    if (this.consulta.limite)
+      sql += ` LIMIT ${this.consulta.limite}`;
+    return sql;
+  }
+}
+
+const sql = new ConstructorConsulta()
+  .desde('usuarios')
+  .seleccionar('id', 'nombre', 'email')
+  .donde('activo = true')
+  .donde('edad &gt; 18')
+  .limitar(10)
+  .construir();
+
+console.log(sql);
+// SELECT id, nombre, email FROM usuarios WHERE activo = true AND edad &gt; 18 LIMIT 10</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public class ConsultaSQL {
+    private String tabla;
+    private List&lt;String&gt; columnas = new ArrayList&lt;&gt;();
+    private List&lt;String&gt; condiciones = new ArrayList&lt;&gt;();
+    private Integer limite;
+
+    // Getters omitidos por brevedad
+    @Override
+    public String toString() {
+        String cols = columnas.isEmpty() ? &quot;*&quot; : String.join(&quot;, &quot;, columnas);
+        StringBuilder sb = new StringBuilder(&quot;SELECT &quot; + cols + &quot; FROM &quot; + tabla);
+        if (!condiciones.isEmpty())
+            sb.append(&quot; WHERE &quot;).append(String.join(&quot; AND &quot;, condiciones));
+        if (limite != null)
+            sb.append(&quot; LIMIT &quot;).append(limite);
+        return sb.toString();
+    }
+
+    public static class Builder {
+        private ConsultaSQL consulta = new ConsultaSQL();
+
+        public Builder desde(String tabla) { consulta.tabla = tabla; return this; }
+        public Builder seleccionar(String... cols) {
+            consulta.columnas.addAll(Arrays.asList(cols)); return this;
+        }
+        public Builder donde(String cond) { consulta.condiciones.add(cond); return this; }
+        public Builder limitar(int n) { consulta.limite = n; return this; }
+        public ConsultaSQL construir() { return consulta; }
+    }
+
+    public static void main(String[] args) {
+        ConsultaSQL sql = new ConsultaSQL.Builder()
+            .desde(&quot;usuarios&quot;)
+            .seleccionar(&quot;id&quot;, &quot;nombre&quot;, &quot;email&quot;)
+            .donde(&quot;activo = true&quot;)
+            .limitar(10)
+            .construir();
+        System.out.println(sql);
+    }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class Director { +construir(builder) }
+    class BuilderBase { <<interface>> +paso1() +paso2() +obtenerResultado() }
+    class BuilderConcreto { +paso1() +paso2() +obtenerResultado() }
+    class Producto { +partes[] }
+    Director --> BuilderBase : usa
+    BuilderBase <|.. BuilderConcreto
+    BuilderConcreto --> Producto : construye</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Para objetos simples con pocos atributos; un constructor con parámetros es más directo.</li><li>Cuando la construcción siempre sigue exactamente el mismo proceso sin variaciones.</li><li>Si el objeto no es inmutable ni complejo, el patrón agrega burocracia sin beneficio.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

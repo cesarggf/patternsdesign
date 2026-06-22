@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Abstract Factory — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#059669">Creacional</div>
+    <h1>Abstract Factory</h1>
+    <p class="patron-desc">Proveer una interfaz para crear familias de objetos relacionados sin especificar sus clases concretas.</p>
+    <span class="patron-badge pb-Creacional">Creacional</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Abstract Factory agrupa fábricas relacionadas bajo una interfaz común. Cuando el sistema necesita un conjunto de objetos compatibles entre sí (por ejemplo, componentes UI para distintas plataformas), la fábrica abstracta garantiza que solo se instancien objetos de la misma familia.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Temas de UI (claro / oscuro)</strong>
+      <p style="margin-top:.35rem">Una app crea botones y menús con el estilo coherente según el tema seleccionado.</p>
+    </div>
+    <div>
+      <strong>2. Drivers de base de datos</strong>
+      <p style="margin-top:.35rem">El sistema instancia conexiones, comandos y readers específicos para MySQL o PostgreSQL.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>// Familias de productos
+class BotonClaro { render() { return '&lt;button class=&quot;btn-light&quot;&gt;OK&lt;/button&gt;'; } }
+class BotonOscuro { render() { return '&lt;button class=&quot;btn-dark&quot;&gt;OK&lt;/button&gt;'; } }
+class MenuClaro  { render() { return '&lt;nav class=&quot;menu-light&quot;&gt;…&lt;/nav&gt;'; } }
+class MenuOscuro { render() { return '&lt;nav class=&quot;menu-dark&quot;&gt;…&lt;/nav&gt;'; } }
+
+// Fábricas concretas
+class FabricaClara {
+  crearBoton() { return new BotonClaro(); }
+  crearMenu()  { return new MenuClaro(); }
+}
+class FabricaOscura {
+  crearBoton() { return new BotonOscuro(); }
+  crearMenu()  { return new MenuOscuro(); }
+}
+
+// Cliente
+function construirUI(fabrica) {
+  const boton = fabrica.crearBoton();
+  const menu  = fabrica.crearMenu();
+  console.log(boton.render());
+  console.log(menu.render());
+}
+
+construirUI(new FabricaClara());
+construirUI(new FabricaOscura());</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public interface FabricaUI {
+    Boton crearBoton();
+    Menu crearMenu();
+}
+
+public class FabricaClara implements FabricaUI {
+    public Boton crearBoton() { return new BotonClaro(); }
+    public Menu  crearMenu()  { return new MenuClaro(); }
+}
+public class FabricaOscura implements FabricaUI {
+    public Boton crearBoton() { return new BotonOscuro(); }
+    public Menu  crearMenu()  { return new MenuOscuro(); }
+}
+
+// Cliente
+public class App {
+    private Boton boton;
+    private Menu  menu;
+
+    public App(FabricaUI fabrica) {
+        boton = fabrica.crearBoton();
+        menu  = fabrica.crearMenu();
+    }
+    public void render() {
+        boton.render();
+        menu.render();
+    }
+    public static void main(String[] args) {
+        new App(new FabricaClara()).render();
+        new App(new FabricaOscura()).render();
+    }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class FabricaUI { <<interface>> +crearBoton() Boton +crearMenu() Menu }
+    class FabricaClara  { +crearBoton() +crearMenu() }
+    class FabricaOscura { +crearBoton() +crearMenu() }
+    class Boton { <<interface>> +render() }
+    class Menu  { <<interface>> +render() }
+    FabricaUI <|.. FabricaClara
+    FabricaUI <|.. FabricaOscura
+    FabricaClara ..> BotonClaro
+    FabricaClara ..> MenuClaro
+    FabricaOscura ..> BotonOscuro
+    FabricaOscura ..> MenuOscuro
+    Boton <|.. BotonClaro
+    Boton <|.. BotonOscuro
+    Menu  <|.. MenuClaro
+    Menu  <|.. MenuOscuro</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando solo tienes una familia de productos; basta con Factory Method.</li><li>Si agregar nuevos tipos de productos requiere cambiar la interfaz abstracta, viola el principio abierto/cerrado.</li><li>Para sistemas pequeños, la cantidad de clases introducida puede ser desproporcionada.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

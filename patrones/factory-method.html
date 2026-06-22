@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Factory Method — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#059669">Creacional</div>
+    <h1>Factory Method</h1>
+    <p class="patron-desc">Definir una interfaz para crear objetos, pero dejar que las subclases decidan qué clase instanciar.</p>
+    <span class="patron-badge pb-Creacional">Creacional</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Factory Method delega la responsabilidad de crear objetos a subclases, eliminando el acoplamiento directo entre el creador y los productos concretos. El creador declara un método de fábrica abstracto, y cada subclase lo implementa para producir el tipo de objeto que necesita.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Generador de notificaciones</strong>
+      <p style="margin-top:.35rem">Un sistema envía notificaciones por email, SMS o push. Cada canal tiene su propia fábrica.</p>
+    </div>
+    <div>
+      <strong>2. Parsers de documentos</strong>
+      <p style="margin-top:.35rem">Una aplicación lee XML, JSON o CSV. Cada formato tiene su propio parser creado por su fábrica.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>// Producto abstracto
+class Notificacion {
+  enviar(mensaje) { throw new Error('Método abstracto'); }
+}
+
+// Productos concretos
+class NotificacionEmail extends Notificacion {
+  enviar(mensaje) { console.log(`📧 Email: ${mensaje}`); }
+}
+class NotificacionSMS extends Notificacion {
+  enviar(mensaje) { console.log(`📱 SMS: ${mensaje}`); }
+}
+
+// Creador con factory method
+class CreadorNotificacion {
+  crearNotificacion() { throw new Error('Método abstracto'); }
+  notificar(mensaje) { this.crearNotificacion().enviar(mensaje); }
+}
+
+class CreadorEmail extends CreadorNotificacion {
+  crearNotificacion() { return new NotificacionEmail(); }
+}
+class CreadorSMS extends CreadorNotificacion {
+  crearNotificacion() { return new NotificacionSMS(); }
+}
+
+// Uso
+const creadores = [new CreadorEmail(), new CreadorSMS()];
+creadores.forEach(c =&gt; c.notificar('¡Pedido confirmado!'));</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>// Producto abstracto
+public interface Notificacion {
+    void enviar(String mensaje);
+}
+
+// Productos concretos
+public class NotificacionEmail implements Notificacion {
+    public void enviar(String mensaje) {
+        System.out.println(&quot;📧 Email: &quot; + mensaje);
+    }
+}
+public class NotificacionSMS implements Notificacion {
+    public void enviar(String mensaje) {
+        System.out.println(&quot;📱 SMS: &quot; + mensaje);
+    }
+}
+
+// Creador abstracto
+public abstract class CreadorNotificacion {
+    public abstract Notificacion crearNotificacion();
+
+    public void notificar(String mensaje) {
+        crearNotificacion().enviar(mensaje);
+    }
+}
+
+// Creadores concretos
+public class CreadorEmail extends CreadorNotificacion {
+    public Notificacion crearNotificacion() { return new NotificacionEmail(); }
+}
+public class CreadorSMS extends CreadorNotificacion {
+    public Notificacion crearNotificacion() { return new NotificacionSMS(); }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class CreadorNotificacion {
+        <<abstract>>
+        +crearNotificacion()* Notificacion
+        +notificar(mensaje)
+    }
+    class CreadorEmail { +crearNotificacion() Notificacion }
+    class CreadorSMS   { +crearNotificacion() Notificacion }
+    class Notificacion { <<interface>> +enviar(mensaje) }
+    class NotificacionEmail { +enviar(mensaje) }
+    class NotificacionSMS   { +enviar(mensaje) }
+    CreadorNotificacion <|-- CreadorEmail
+    CreadorNotificacion <|-- CreadorSMS
+    Notificacion <|.. NotificacionEmail
+    Notificacion <|.. NotificacionSMS
+    CreadorEmail ..> NotificacionEmail : crea
+    CreadorSMS ..> NotificacionSMS : crea</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando solo tienes un tipo de producto y no se espera variación; añade complejidad innecesaria.</li><li>Si la jerarquía de clases ya es muy profunda, añadir más subclases empeora la mantenibilidad.</li><li>Para lógica de creación trivial, un simple constructor o función es suficiente.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

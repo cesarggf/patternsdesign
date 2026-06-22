@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Decorator — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#d97706">Estructural</div>
+    <h1>Decorator</h1>
+    <p class="patron-desc">Añadir responsabilidades a un objeto dinámicamente, como alternativa flexible a la herencia para extender funcionalidad.</p>
+    <span class="patron-badge pb-Estructural">Estructural</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Decorator envuelve un objeto existente para añadirle comportamiento antes o después de delegar la llamada al objeto envuelto. Varios decoradores pueden apilarse como capas de cebolla. Difiere de la herencia en que la extensión ocurre en tiempo de ejecución y puede combinarse libremente.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Streams de I/O</strong>
+      <p style="margin-top:.35rem">Apilar compresión + cifrado + buffering sobre un stream base de escritura a archivo.</p>
+    </div>
+    <div>
+      <strong>2. Middleware HTTP</strong>
+      <p style="margin-top:.35rem">Añadir autenticación, logging y rate-limiting a un handler HTTP base de forma componible.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>// Componente base
+class Cafe {
+  costo() { return 1.0; }
+  descripcion() { return 'Café'; }
+}
+
+// Decorador base
+class DecoradorCafe {
+  constructor(cafe) { this.cafe = cafe; }
+  costo() { return this.cafe.costo(); }
+  descripcion() { return this.cafe.descripcion(); }
+}
+
+// Decoradores concretos
+class ConLeche extends DecoradorCafe {
+  costo()       { return this.cafe.costo() + 0.5; }
+  descripcion() { return this.cafe.descripcion() + ', leche'; }
+}
+class ConVainilla extends DecoradorCafe {
+  costo()       { return this.cafe.costo() + 0.7; }
+  descripcion() { return this.cafe.descripcion() + ', vainilla'; }
+}
+class ConChocolate extends DecoradorCafe {
+  costo()       { return this.cafe.costo() + 0.9; }
+  descripcion() { return this.cafe.descripcion() + ', chocolate'; }
+}
+
+// Uso — combinación dinámica
+let pedido = new Cafe();
+pedido = new ConLeche(pedido);
+pedido = new ConVainilla(pedido);
+pedido = new ConChocolate(pedido);
+
+console.log(pedido.descripcion()); // Café, leche, vainilla, chocolate
+console.log(pedido.costo());       // 3.1</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public interface Cafe {
+    double costo();
+    String descripcion();
+}
+
+public class CafeSimple implements Cafe {
+    public double costo()       { return 1.0; }
+    public String descripcion() { return &quot;Café&quot;; }
+}
+
+public abstract class DecoradorCafe implements Cafe {
+    protected Cafe cafe;
+    public DecoradorCafe(Cafe cafe) { this.cafe = cafe; }
+}
+
+public class ConLeche extends DecoradorCafe {
+    public ConLeche(Cafe cafe) { super(cafe); }
+    public double costo()       { return cafe.costo() + 0.5; }
+    public String descripcion() { return cafe.descripcion() + &quot;, leche&quot;; }
+}
+
+public class ConVainilla extends DecoradorCafe {
+    public ConVainilla(Cafe cafe) { super(cafe); }
+    public double costo()       { return cafe.costo() + 0.7; }
+    public String descripcion() { return cafe.descripcion() + &quot;, vainilla&quot;; }
+}
+
+// Uso
+Cafe pedido = new ConVainilla(new ConLeche(new CafeSimple()));
+System.out.println(pedido.descripcion() + &quot; = &quot; + pedido.costo());</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class Cafe { <<interface>> +costo() +descripcion() }
+    class CafeSimple { +costo() +descripcion() }
+    class DecoradorCafe { #cafe Cafe +costo() +descripcion() }
+    class ConLeche    { +costo() +descripcion() }
+    class ConVainilla { +costo() +descripcion() }
+    Cafe <|.. CafeSimple
+    Cafe <|.. DecoradorCafe
+    DecoradorCafe <|-- ConLeche
+    DecoradorCafe <|-- ConVainilla
+    DecoradorCafe o--> Cafe</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando el orden de los decoradores importa y no se gestiona correctamente, causa bugs difíciles de rastrear.</li><li>Demasiados decoradores anidados complican el debugging (stack de llamadas profundo).</li><li>Si la funcionalidad extra siempre aplica al 100% de los casos, simplemente extiende la clase.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

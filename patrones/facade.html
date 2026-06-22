@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Facade — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#d97706">Estructural</div>
+    <h1>Facade</h1>
+    <p class="patron-desc">Proporcionar una interfaz simplificada a un subsistema complejo de clases.</p>
+    <span class="patron-badge pb-Estructural">Estructural</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Facade define una interfaz de alto nivel que hace al subsistema más fácil de usar. Oculta la complejidad interna de múltiples clases y sus interacciones, ofreciendo métodos simples que orquestan las operaciones necesarias. Los clientes usan la fachada en lugar de interactuar directamente con el subsistema.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Sistema de home theater</strong>
+      <p style="margin-top:.35rem">Una sola llamada `verPelicula()` coordina encender proyector, bajar persianas, configurar audio y reproducir.</p>
+    </div>
+    <div>
+      <strong>2. API de autenticación</strong>
+      <p style="margin-top:.35rem">Una fachada orquesta validación de credenciales, generación de token JWT, logging y auditoría.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>// Subsistemas complejos
+class Proyector {
+  encender() { console.log('Proyector: encendido'); }
+  apagar()   { console.log('Proyector: apagado');  }
+}
+class SistemaAudio {
+  configurar(volumen) { console.log(`Audio: volumen ${volumen}`); }
+  apagar()   { console.log('Audio: apagado'); }
+}
+class Persianas {
+  bajar()  { console.log('Persianas: bajadas'); }
+  subir()  { console.log('Persianas: subidas'); }
+}
+class Reproductor {
+  reproducir(pelicula) { console.log(`▶ Reproduciendo: ${pelicula}`); }
+  detener() { console.log('⏹ Detenido'); }
+}
+
+// Facade
+class HomeTheaterFacade {
+  constructor() {
+    this.proyector  = new Proyector();
+    this.audio      = new SistemaAudio();
+    this.persianas  = new Persianas();
+    this.reproductor = new Reproductor();
+  }
+
+  verPelicula(pelicula) {
+    this.proyector.encender();
+    this.persianas.bajar();
+    this.audio.configurar(30);
+    this.reproductor.reproducir(pelicula);
+  }
+
+  terminar() {
+    this.reproductor.detener();
+    this.audio.apagar();
+    this.persianas.subir();
+    this.proyector.apagar();
+  }
+}
+
+// Cliente solo interactúa con la fachada
+const cine = new HomeTheaterFacade();
+cine.verPelicula('El Padrino');
+cine.terminar();</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public class HomeTheaterFacade {
+    private Proyector proyector   = new Proyector();
+    private SistemaAudio audio    = new SistemaAudio();
+    private Persianas persianas   = new Persianas();
+    private Reproductor repr      = new Reproductor();
+
+    public void verPelicula(String pelicula) {
+        proyector.encender();
+        persianas.bajar();
+        audio.configurar(30);
+        repr.reproducir(pelicula);
+    }
+
+    public void terminar() {
+        repr.detener();
+        audio.apagar();
+        persianas.subir();
+        proyector.apagar();
+    }
+
+    public static void main(String[] args) {
+        HomeTheaterFacade cine = new HomeTheaterFacade();
+        cine.verPelicula(&quot;El Padrino&quot;);
+        cine.terminar();
+    }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class HomeTheaterFacade { +verPelicula(titulo) +terminar() }
+    class Proyector   { +encender() +apagar() }
+    class SistemaAudio{ +configurar(vol) +apagar() }
+    class Persianas   { +bajar() +subir() }
+    class Reproductor { +reproducir(p) +detener() }
+    HomeTheaterFacade --> Proyector
+    HomeTheaterFacade --> SistemaAudio
+    HomeTheaterFacade --> Persianas
+    HomeTheaterFacade --> Reproductor</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando los clientes necesitan acceso granular a las funcionalidades internas del subsistema.</li><li>Si la fachada se convierte en un objeto 'dios' con demasiadas responsabilidades.</li><li>En sistemas simples donde la fachada no reduce significativamente la complejidad.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

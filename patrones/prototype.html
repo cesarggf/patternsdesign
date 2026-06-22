@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prototype — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#059669">Creacional</div>
+    <h1>Prototype</h1>
+    <p class="patron-desc">Crear nuevos objetos copiando una instancia existente (prototipo) sin depender de su clase concreta.</p>
+    <span class="patron-badge pb-Creacional">Creacional</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Prototype delega la creación de copias al propio objeto mediante un método `clonar()`. Permite duplicar objetos costosos de inicializar (como los que requieren operaciones de red o disco) sin repetir esa inicialización. Existen dos variantes: copia superficial (shallow) y copia profunda (deep).</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Plantillas de documentos</strong>
+      <p style="margin-top:.35rem">Clonar un documento base ya formateado para crear variantes sin repetir la inicialización.</p>
+    </div>
+    <div>
+      <strong>2. Objetos de juego</strong>
+      <p style="margin-top:.35rem">En un videojuego, clonar enemigos ya configurados en lugar de crear cada uno desde cero.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>class Personaje {
+  constructor(nombre, nivel, habilidades) {
+    this.nombre = nombre;
+    this.nivel = nivel;
+    this.habilidades = [...habilidades]; // copia profunda del array
+  }
+
+  clonar() {
+    return new Personaje(this.nombre, this.nivel, this.habilidades);
+  }
+
+  toString() {
+    return `${this.nombre} [Nv.${this.nivel}] — ${this.habilidades.join(', ')}`;
+  }
+}
+
+// Prototipo base
+const guerrero = new Personaje('Guerrero', 1, ['espada', 'escudo']);
+
+// Clonamos y personalizamos
+const guerrero2 = guerrero.clonar();
+guerrero2.nombre = 'Guerrero Élite';
+guerrero2.nivel  = 5;
+guerrero2.habilidades.push('magia');
+
+console.log(guerrero.toString());  // Guerrero [Nv.1] — espada, escudo
+console.log(guerrero2.toString()); // Guerrero Élite [Nv.5] — espada, escudo, magia</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public class Personaje implements Cloneable {
+    private String nombre;
+    private int nivel;
+    private List&lt;String&gt; habilidades;
+
+    public Personaje(String nombre, int nivel, List&lt;String&gt; habilidades) {
+        this.nombre = nombre;
+        this.nivel = nivel;
+        this.habilidades = new ArrayList&lt;&gt;(habilidades);
+    }
+
+    @Override
+    public Personaje clone() {
+        try {
+            Personaje clon = (Personaje) super.clone();
+            clon.habilidades = new ArrayList&lt;&gt;(this.habilidades); // deep copy
+            return clon;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void main(String[] args) {
+        Personaje base = new Personaje(&quot;Guerrero&quot;, 1,
+            Arrays.asList(&quot;espada&quot;, &quot;escudo&quot;));
+
+        Personaje elite = base.clone();
+        elite.nombre = &quot;Guerrero Élite&quot;;
+        elite.nivel  = 5;
+        elite.habilidades.add(&quot;magia&quot;);
+
+        System.out.println(base);   // Guerrero Nv.1
+        System.out.println(elite);  // Guerrero Élite Nv.5
+    }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class Prototipo { <<interface>> +clonar() Prototipo }
+    class PersonajeCroto { -nombre -nivel -habilidades[] +clonar() Prototipo }
+    class DocumentoProto  { -titulo -contenido +clonar() Prototipo }
+    Prototipo <|.. PersonajeCroto
+    Prototipo <|.. DocumentoProto</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando los objetos tienen pocas propiedades simples; un constructor es más claro.</li><li>Si el objeto contiene referencias circulares, la clonación profunda puede ser extremadamente compleja.</li><li>Cuando clonar viola invariantes del objeto (ej: IDs únicos que no deben duplicarse).</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Command — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#7c3aed">Comportamiento</div>
+    <h1>Command</h1>
+    <p class="patron-desc">Encapsular una solicitud como objeto, permitiendo parametrizar clientes, hacer cola de solicitudes, registrar operaciones y soportar operaciones deshechas (undo).</p>
+    <span class="patron-badge pb-Comportamiento">Comportamiento</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Command convierte acciones en objetos independientes. El Invocador almacena y ejecuta comandos sin conocer su implementación. El Receptor realiza el trabajo real. Esta separación permite implementar undo/redo, colas de operaciones, logging de acciones y transacciones.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Editor de texto con Undo/Redo</strong>
+      <p style="margin-top:.35rem">Cada acción de escritura o borrado es un comando; el historial permite deshacer y rehacer.</p>
+    </div>
+    <div>
+      <strong>2. Sistema de macros</strong>
+      <p style="margin-top:.35rem">Grabar una secuencia de comandos del usuario y reproducirlos automáticamente.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>// Receptor
+class Editor {
+  constructor() { this.texto = ''; }
+  insertar(texto) { this.texto += texto; }
+  borrar(n)       { this.texto = this.texto.slice(0, -n); }
+}
+
+// Interfaz Command
+class Comando {
+  ejecutar() {}
+  deshacer() {}
+}
+
+// Comandos concretos
+class ComandoInsertar extends Comando {
+  constructor(editor, texto) { super(); this.editor = editor; this.texto = texto; }
+  ejecutar() { this.editor.insertar(this.texto); }
+  deshacer() { this.editor.borrar(this.texto.length); }
+}
+
+// Invocador con historial
+class Historial {
+  constructor() { this.pila = []; }
+  ejecutar(cmd)  { cmd.ejecutar(); this.pila.push(cmd); }
+  deshacer()     { this.pila.pop()?.deshacer(); }
+}
+
+const editor    = new Editor();
+const historial = new Historial();
+
+historial.ejecutar(new ComandoInsertar(editor, 'Hola'));
+historial.ejecutar(new ComandoInsertar(editor, ' mundo'));
+console.log(editor.texto); // Hola mundo
+
+historial.deshacer();
+console.log(editor.texto); // Hola</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public interface Comando {
+    void ejecutar();
+    void deshacer();
+}
+
+public class Editor {
+    private StringBuilder texto = new StringBuilder();
+    public void insertar(String t) { texto.append(t); }
+    public void borrar(int n) { texto.delete(texto.length()-n, texto.length()); }
+    public String getText() { return texto.toString(); }
+}
+
+public class ComandoInsertar implements Comando {
+    private Editor editor;
+    private String texto;
+    public ComandoInsertar(Editor e, String t) { editor=e; texto=t; }
+    public void ejecutar() { editor.insertar(texto); }
+    public void deshacer() { editor.borrar(texto.length()); }
+}
+
+public class Historial {
+    private Deque&lt;Comando&gt; pila = new ArrayDeque&lt;&gt;();
+    public void ejecutar(Comando cmd) { cmd.ejecutar(); pila.push(cmd); }
+    public void deshacer() { if (!pila.isEmpty()) pila.pop().deshacer(); }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class Comando { <<interface>> +ejecutar() +deshacer() }
+    class ComandoInsertar { -editor -texto +ejecutar() +deshacer() }
+    class Historial { -pila[] +ejecutar(cmd) +deshacer() }
+    class Editor { -texto +insertar() +borrar() }
+    Comando <|.. ComandoInsertar
+    Historial --> Comando : almacena
+    ComandoInsertar --> Editor : modifica</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Para operaciones simples sin necesidad de undo, historial ni colas; agrega burocracia innecesaria.</li><li>Cuando las operaciones siempre se ejecutan de inmediato y no se reutilizan.</li><li>Si el sistema ya tiene un mecanismo transaccional robusto que hace lo mismo.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

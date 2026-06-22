@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Visitor — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#7c3aed">Comportamiento</div>
+    <h1>Visitor</h1>
+    <p class="patron-desc">Definir una operación a realizar sobre los elementos de una estructura de objetos sin cambiar las clases de dichos elementos.</p>
+    <span class="patron-badge pb-Comportamiento">Comportamiento</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Visitor permite añadir nuevas operaciones a una jerarquía de clases sin modificarlas, usando el mecanismo de double dispatch. Cada elemento acepta un visitante; el visitante tiene un método `visitar` sobrecargado para cada tipo de elemento. Ideal cuando la jerarquía es estable pero las operaciones cambian frecuentemente.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Generador de reportes</strong>
+      <p style="margin-top:.35rem">Visitar elementos de una factura (productos, descuentos, impuestos) para generar texto o HTML.</p>
+    </div>
+    <div>
+      <strong>2. Compilador — análisis semántico</strong>
+      <p style="margin-top:.35rem">Distintos visitantes (verificador de tipos, generador de código) recorren el árbol sintáctico.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>// Elementos
+class Producto {
+  constructor(nombre, precio) { this.nombre = nombre; this.precio = precio; }
+  aceptar(visitante) { visitante.visitarProducto(this); }
+}
+class Descuento {
+  constructor(porcentaje) { this.porcentaje = porcentaje; }
+  aceptar(visitante) { visitante.visitarDescuento(this); }
+}
+class Impuesto {
+  constructor(tasa) { this.tasa = tasa; }
+  aceptar(visitante) { visitante.visitarImpuesto(this); }
+}
+
+// Visitantes
+class CalculadorTotal {
+  constructor() { this.total = 0; this.base = 0; }
+  visitarProducto(p) { this.base += p.precio; this.total += p.precio; }
+  visitarDescuento(d) { this.total -= this.base * (d.porcentaje / 100); }
+  visitarImpuesto(i)  { this.total += this.base * (i.tasa / 100); }
+}
+
+class GeneradorHTML {
+  constructor() { this.html = ''; }
+  visitarProducto(p) { this.html += `&lt;li&gt;${p.nombre}: €${p.precio}&lt;/li&gt;`; }
+  visitarDescuento(d) { this.html += `&lt;li class=&quot;desc&quot;&gt;Descuento: -${d.porcentaje}%&lt;/li&gt;`; }
+  visitarImpuesto(i)  { this.html += `&lt;li class=&quot;tax&quot;&gt;IVA: +${i.tasa}%&lt;/li&gt;`; }
+}
+
+const factura = [new Producto('Laptop',1000), new Descuento(10), new Impuesto(21)];
+const calc = new CalculadorTotal();
+factura.forEach(e =&gt; e.aceptar(calc));
+console.log('Total:', calc.total.toFixed(2)); // 1110.00</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public interface Visitante {
+    void visitarProducto(Producto p);
+    void visitarDescuento(Descuento d);
+    void visitarImpuesto(Impuesto i);
+}
+
+public interface ElementoFactura {
+    void aceptar(Visitante v);
+}
+
+public class Producto implements ElementoFactura {
+    public String nombre; public double precio;
+    public Producto(String n, double p) { nombre=n; precio=p; }
+    public void aceptar(Visitante v) { v.visitarProducto(this); }
+}
+
+public class CalculadorTotal implements Visitante {
+    private double total=0, base=0;
+    public void visitarProducto(Producto p) { base+=p.precio; total+=p.precio; }
+    public void visitarDescuento(Descuento d) { total -= base*(d.porcentaje/100); }
+    public void visitarImpuesto(Impuesto i)   { total += base*(i.tasa/100); }
+    public double getTotal() { return total; }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class Visitante { <<interface>> +visitarProducto() +visitarDescuento() +visitarImpuesto() }
+    class CalculadorTotal { +visitarProducto() +visitarDescuento() +visitarImpuesto() }
+    class GeneradorHTML   { +visitarProducto() +visitarDescuento() +visitarImpuesto() }
+    class Elemento { <<interface>> +aceptar(visitante) }
+    class Producto  { +aceptar() }
+    class Descuento { +aceptar() }
+    class Impuesto  { +aceptar() }
+    Visitante <|.. CalculadorTotal
+    Visitante <|.. GeneradorHTML
+    Elemento <|.. Producto
+    Elemento <|.. Descuento
+    Elemento <|.. Impuesto</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando la jerarquía de objetos cambia frecuentemente; añadir un nuevo elemento requiere modificar todos los visitantes.</li><li>Si el encapsulamiento es crítico; los visitantes necesitan acceder a los detalles internos de los elementos.</li><li>Para jerarquías simples con pocas operaciones, la complejidad del double dispatch no se justifica.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

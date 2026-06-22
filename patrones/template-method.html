@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Template Method — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#7c3aed">Comportamiento</div>
+    <h1>Template Method</h1>
+    <p class="patron-desc">Definir el esqueleto de un algoritmo en una operación, dejando que las subclases redefinan ciertos pasos sin cambiar la estructura del algoritmo.</p>
+    <span class="patron-badge pb-Comportamiento">Comportamiento</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Template Method implementa el esqueleto de un proceso en la clase base. Los pasos invariantes se implementan en la base; los pasos variables se declaran abstractos para que las subclases los completen. Evita duplicación de código cuando múltiples clases siguen el mismo proceso pero con variaciones en pasos específicos.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Proceso de exportación de datos</strong>
+      <p style="margin-top:.35rem">El proceso siempre es: abrir → leer datos → transformar → escribir → cerrar. El formato (CSV, XML, JSON) varía.</p>
+    </div>
+    <div>
+      <strong>2. Ciclo de vida de tests</strong>
+      <p style="margin-top:.35rem">setUp → ejecutarTest → tearDown es el esqueleto; cada test implementa su propio cuerpo.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>// Clase base con template method
+class ExportadorDatos {
+  // Template method — no se sobreescribe
+  exportar(datos) {
+    const encabezado = this.generarEncabezado();
+    const cuerpo = datos.map(fila =&gt; this.formatearFila(fila)).join(this.separador());
+    const pie = this.generarPie();
+    console.log([encabezado, cuerpo, pie].filter(Boolean).join('\n'));
+  }
+
+  // Pasos variables — las subclases los implementan
+  generarEncabezado() { return ''; }
+  generarPie()        { return ''; }
+  separador()         { return '\n'; }
+  formatearFila(fila) { throw new Error('Implementar'); }
+}
+
+class ExportadorCSV extends ExportadorDatos {
+  generarEncabezado() { return 'nombre,edad,ciudad'; }
+  formatearFila(f)    { return `${f.nombre},${f.edad},${f.ciudad}`; }
+}
+
+class ExportadorJSON extends ExportadorDatos {
+  generarEncabezado() { return '['; }
+  generarPie()        { return ']'; }
+  separador()         { return ',\n'; }
+  formatearFila(f)    { return JSON.stringify(f); }
+}
+
+const datos = [
+  { nombre: 'Cesar', edad: 30, ciudad: 'Madrid' },
+  { nombre: 'Ana',   edad: 25, ciudad: 'Bogotá'  }
+];
+
+new ExportadorCSV().exportar(datos);
+new ExportadorJSON().exportar(datos);</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public abstract class ExportadorDatos {
+    // Template method
+    public final void exportar(List&lt;Map&lt;String,String&gt;&gt; datos) {
+        System.out.println(generarEncabezado());
+        datos.forEach(f -&gt; System.out.println(formatearFila(f)));
+        System.out.println(generarPie());
+    }
+
+    protected String generarEncabezado() { return &quot;&quot;; }
+    protected String generarPie()        { return &quot;&quot;; }
+    protected abstract String formatearFila(Map&lt;String,String&gt; fila);
+}
+
+public class ExportadorCSV extends ExportadorDatos {
+    protected String generarEncabezado() { return &quot;nombre,edad,ciudad&quot;; }
+    protected String formatearFila(Map&lt;String,String&gt; f) {
+        return f.get(&quot;nombre&quot;)+&quot;,&quot;+f.get(&quot;edad&quot;)+&quot;,&quot;+f.get(&quot;ciudad&quot;);
+    }
+}
+
+public class ExportadorXML extends ExportadorDatos {
+    protected String generarEncabezado() { return &quot;&lt;datos&gt;&quot;; }
+    protected String generarPie()        { return &quot;&lt;/datos&gt;&quot;; }
+    protected String formatearFila(Map&lt;String,String&gt; f) {
+        return &quot;  &lt;fila nombre=\&quot;&quot;+f.get(&quot;nombre&quot;)+&quot;\&quot; edad=\&quot;&quot;+f.get(&quot;edad&quot;)+&quot;\&quot;/&gt;&quot;;
+    }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class ExportadorDatos { +exportar(datos) +generarEncabezado()* +formatearFila()* +generarPie()* }
+    class ExportadorCSV  { +generarEncabezado() +formatearFila() }
+    class ExportadorJSON { +generarEncabezado() +formatearFila() +generarPie() }
+    ExportadorDatos <|-- ExportadorCSV
+    ExportadorDatos <|-- ExportadorJSON</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando la variación entre subclases es tan grande que el esqueleto común es mínimo.</li><li>Si se necesita cambiar el algoritmo en tiempo de ejecución; Strategy es más apropiado.</li><li>Puede violar el Principio de Sustitución de Liskov si las subclases cambian drásticamente el comportamiento.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

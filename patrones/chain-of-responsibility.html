@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chain of Responsibility — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#7c3aed">Comportamiento</div>
+    <h1>Chain of Responsibility</h1>
+    <p class="patron-desc">Pasar una solicitud a lo largo de una cadena de manejadores, donde cada uno decide procesarla o pasarla al siguiente.</p>
+    <span class="patron-badge pb-Comportamiento">Comportamiento</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Chain of Responsibility desacopla al emisor de una solicitud de sus receptores. Cada manejador tiene una referencia al siguiente en la cadena. Al recibir una solicitud, el manejador la procesa si puede, o la pasa al siguiente. Esto permite componer cadenas de procesamiento flexibles y modificarlas en tiempo de ejecución.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Pipeline de validación de formulario</strong>
+      <p style="margin-top:.35rem">Validar presencia, formato email y longitud mínima de contraseña en cadena.</p>
+    </div>
+    <div>
+      <strong>2. Sistema de soporte técnico</strong>
+      <p style="margin-top:.35rem">Nivel 1 (básico) → Nivel 2 (técnico) → Nivel 3 (experto) según la complejidad del ticket.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>class Manejador {
+  constructor(nombre) { this.nombre = nombre; this.siguiente = null; }
+  setSiguiente(m) { this.siguiente = m; return m; }
+  manejar(solicitud) {
+    if (this.siguiente) return this.siguiente.manejar(solicitud);
+    console.log(`Sin manejador para: ${solicitud}`);
+  }
+}
+
+class ValidadorPresencia extends Manejador {
+  manejar(datos) {
+    if (!datos.email || !datos.password) {
+      return console.log('❌ Campos requeridos vacíos');
+    }
+    super.manejar(datos);
+  }
+}
+class ValidadorEmail extends Manejador {
+  manejar(datos) {
+    if (!/\S+@\S+\.\S+/.test(datos.email)) {
+      return console.log('❌ Email inválido');
+    }
+    super.manejar(datos);
+  }
+}
+class ValidadorPassword extends Manejador {
+  manejar(datos) {
+    if (datos.password.length &lt; 8) {
+      return console.log('❌ Contraseña muy corta (mín. 8 chars)');
+    }
+    console.log('✅ Validación completa');
+  }
+}
+
+const v1 = new ValidadorPresencia('presencia');
+const v2 = new ValidadorEmail('email');
+const v3 = new ValidadorPassword('password');
+v1.setSiguiente(v2).setSiguiente(v3);
+
+v1.manejar({ email: 'test@mail.com', password: '12345678' }); // ✅
+v1.manejar({ email: 'mal-email', password: '12345678' });     // ❌</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public abstract class Manejador {
+    protected Manejador siguiente;
+    public Manejador setSiguiente(Manejador m) { siguiente = m; return m; }
+    public abstract void manejar(Map&lt;String, String&gt; datos);
+}
+
+public class ValidadorPresencia extends Manejador {
+    public void manejar(Map&lt;String, String&gt; datos) {
+        if (datos.get(&quot;email&quot;) == null || datos.get(&quot;password&quot;) == null) {
+            System.out.println(&quot;❌ Campos requeridos vacíos&quot;);
+            return;
+        }
+        if (siguiente != null) siguiente.manejar(datos);
+    }
+}
+
+public class ValidadorEmail extends Manejador {
+    public void manejar(Map&lt;String, String&gt; datos) {
+        if (!datos.get(&quot;email&quot;).contains(&quot;@&quot;)) {
+            System.out.println(&quot;❌ Email inválido&quot;); return;
+        }
+        if (siguiente != null) siguiente.manejar(datos);
+    }
+}
+
+public class ValidadorPassword extends Manejador {
+    public void manejar(Map&lt;String, String&gt; datos) {
+        if (datos.get(&quot;password&quot;).length() &lt; 8) {
+            System.out.println(&quot;❌ Contraseña muy corta&quot;); return;
+        }
+        System.out.println(&quot;✅ Validación completa&quot;);
+    }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class Manejador { #siguiente Manejador +setSiguiente() +manejar()* }
+    class ValidadorPresencia { +manejar() }
+    class ValidadorEmail     { +manejar() }
+    class ValidadorPassword  { +manejar() }
+    Manejador <|-- ValidadorPresencia
+    Manejador <|-- ValidadorEmail
+    Manejador <|-- ValidadorPassword
+    ValidadorPresencia --> ValidadorEmail : siguiente
+    ValidadorEmail --> ValidadorPassword : siguiente</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando hay un único manejador posible; no tiene sentido armar la cadena.</li><li>Si ningún manejador puede garantizar que la solicitud será procesada, la solicitud se puede perder silenciosamente.</li><li>Cadenas muy largas degradan el rendimiento por el recorrido secuencial.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

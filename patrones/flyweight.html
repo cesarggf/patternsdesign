@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flyweight — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#d97706">Estructural</div>
+    <h1>Flyweight</h1>
+    <p class="patron-desc">Usar compartición para soportar eficientemente grandes cantidades de objetos de grano fino.</p>
+    <span class="patron-badge pb-Estructural">Estructural</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Flyweight reduce el uso de memoria separando el estado intrínseco (compartido, inmutable) del estado extrínseco (único por instancia, gestionado por el cliente). La fábrica Flyweight garantiza que los objetos con el mismo estado intrínseco se compartan en lugar de duplicarse.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Caracteres en un editor de texto</strong>
+      <p style="margin-top:.35rem">Millones de caracteres comparten el objeto de fuente/estilo; solo la posición es única.</p>
+    </div>
+    <div>
+      <strong>2. Partículas en un motor de juego</strong>
+      <p style="margin-top:.35rem">Miles de partículas de fuego comparten la textura y el color; solo posición y velocidad varían.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>// Flyweight — estado intrínseco
+class TipoArbol {
+  constructor(nombre, color, textura) {
+    this.nombre   = nombre;
+    this.color    = color;
+    this.textura  = textura;
+  }
+  dibujar(x, y) {
+    console.log(`🌳 ${this.nombre} (${this.color}) en (${x},${y})`);
+  }
+}
+
+// Fábrica Flyweight
+class FabricaArboles {
+  constructor() { this.tipos = {}; }
+
+  obtener(nombre, color, textura) {
+    const clave = `${nombre}-${color}`;
+    if (!this.tipos[clave]) {
+      this.tipos[clave] = new TipoArbol(nombre, color, textura);
+      console.log(`Creando nuevo tipo: ${clave}`);
+    }
+    return this.tipos[clave];
+  }
+  get total() { return Object.keys(this.tipos).length; }
+}
+
+// Bosque con 1000 árboles pero pocos tipos
+const fabrica = new FabricaArboles();
+const bosque = [];
+
+for (let i = 0; i &lt; 500; i++) {
+  bosque.push({ tipo: fabrica.obtener('Roble','verde','rugosa'), x: i, y: i*2 });
+  bosque.push({ tipo: fabrica.obtener('Pino','verde oscuro','lisa'), x: i*3, y: i });
+}
+
+bosque[0].tipo.dibujar(bosque[0].x, bosque[0].y);
+console.log(`Tipos de árbol: ${fabrica.total}, Árboles: ${bosque.length}`);</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public class TipoArbol {
+    private String nombre, color, textura;
+    public TipoArbol(String n, String c, String t) {
+        nombre=n; color=c; textura=t;
+    }
+    public void dibujar(int x, int y) {
+        System.out.println(&quot;🌳 &quot;+nombre+&quot; (&quot;+color+&quot;) en (&quot;+x+&quot;,&quot;+y+&quot;)&quot;);
+    }
+}
+
+public class FabricaArboles {
+    private static Map&lt;String, TipoArbol&gt; tipos = new HashMap&lt;&gt;();
+
+    public static TipoArbol obtener(String nombre, String color, String textura) {
+        String clave = nombre + &quot;-&quot; + color;
+        tipos.computeIfAbsent(clave, k -&gt; new TipoArbol(nombre, color, textura));
+        return tipos.get(clave);
+    }
+    public static int totalTipos() { return tipos.size(); }
+}
+
+// Árbol en el bosque (estado extrínseco)
+public class Arbol {
+    private int x, y;
+    private TipoArbol tipo;
+    public Arbol(int x, int y, TipoArbol tipo) { this.x=x; this.y=y; this.tipo=tipo; }
+    public void dibujar() { tipo.dibujar(x, y); }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class TipoArbol { -nombre -color -textura +dibujar(x,y) }
+    class FabricaArboles { -tipos Map +obtener(n,c,t) TipoArbol }
+    class Arbol { -x -y -tipo TipoArbol +dibujar() }
+    FabricaArboles --> TipoArbol : crea/comparte
+    Arbol --> TipoArbol : referencia</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando el número de objetos es pequeño; la complejidad del patrón no compensa.</li><li>Si el estado extrínseco es difícil de externalizar o complica significativamente el código cliente.</li><li>Cuando la memoria no es una restricción real del sistema.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

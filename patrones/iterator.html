@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Iterator — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#7c3aed">Comportamiento</div>
+    <h1>Iterator</h1>
+    <p class="patron-desc">Proporcionar una forma de acceder secuencialmente a los elementos de una colección sin exponer su representación interna.</p>
+    <span class="patron-badge pb-Comportamiento">Comportamiento</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Iterator encapsula la lógica de recorrido de una colección en un objeto separado. El cliente usa la interfaz del iterador sin conocer si la colección es un array, árbol, grafo u otra estructura. Esto permite múltiples recorridos simultáneos e independientes sobre la misma colección.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Recorrido de árbol binario</strong>
+      <p style="margin-top:.35rem">Proveer iteradores para recorrido en orden, preorden y postorden sin cambiar la clase árbol.</p>
+    </div>
+    <div>
+      <strong>2. Playlist de música</strong>
+      <p style="margin-top:.35rem">Un iterador que recorre canciones en orden, aleatorio o cíclico sin cambiar la colección.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>class Playlist {
+  constructor() { this.canciones = []; }
+  agregar(cancion) { this.canciones.push(cancion); }
+
+  // Iterador en orden
+  [Symbol.iterator]() {
+    let indice = 0;
+    const canciones = this.canciones;
+    return {
+      next() {
+        return indice &lt; canciones.length
+          ? { value: canciones[indice++], done: false }
+          : { done: true };
+      }
+    };
+  }
+
+  // Iterador aleatorio
+  *iteradorAleatorio() {
+    const copia = [...this.canciones].sort(() =&gt; Math.random() - 0.5);
+    for (const cancion of copia) yield cancion;
+  }
+}
+
+const lista = new Playlist();
+lista.agregar('Bohemian Rhapsody');
+lista.agregar('Hotel California');
+lista.agregar('Stairway to Heaven');
+
+console.log('--- Orden normal ---');
+for (const c of lista) console.log(c);
+
+console.log('--- Aleatorio ---');
+for (const c of lista.iteradorAleatorio()) console.log(c);</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public class Playlist implements Iterable&lt;String&gt; {
+    private List&lt;String&gt; canciones = new ArrayList&lt;&gt;();
+
+    public void agregar(String cancion) { canciones.add(cancion); }
+
+    @Override
+    public Iterator&lt;String&gt; iterator() {
+        return canciones.iterator(); // iterador en orden
+    }
+
+    public Iterator&lt;String&gt; iteradorAleatorio() {
+        List&lt;String&gt; copia = new ArrayList&lt;&gt;(canciones);
+        Collections.shuffle(copia);
+        return copia.iterator();
+    }
+
+    public static void main(String[] args) {
+        Playlist lista = new Playlist();
+        lista.agregar(&quot;Bohemian Rhapsody&quot;);
+        lista.agregar(&quot;Hotel California&quot;);
+
+        System.out.println(&quot;--- Orden normal ---&quot;);
+        for (String c : lista) System.out.println(c);
+
+        System.out.println(&quot;--- Aleatorio ---&quot;);
+        lista.iteradorAleatorio().forEachRemaining(System.out::println);
+    }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class Iterable { <<interface>> +iterator() Iterator }
+    class Iterator { <<interface>> +next() +hasNext() }
+    class Playlist { -canciones[] +agregar() +iterator() }
+    class PlaylistIterator { -indice +next() +hasNext() }
+    Iterable <|.. Playlist
+    Iterator <|.. PlaylistIterator
+    Playlist --> PlaylistIterator : crea</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Para arrays simples donde un for/forEach es más claro y directo.</li><li>Cuando la colección siempre se recorre de una sola manera y no hay variación.</li><li>En lenguajes modernos donde los iterables/generators ya cubren este patrón de forma nativa.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

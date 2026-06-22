@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bridge — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#d97706">Estructural</div>
+    <h1>Bridge</h1>
+    <p class="patron-desc">Desacoplar una abstracción de su implementación para que ambas puedan variar independientemente.</p>
+    <span class="patron-badge pb-Estructural">Estructural</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Bridge separa una jerarquía de abstracciones de una jerarquía de implementaciones mediante composición en lugar de herencia. La abstracción mantiene una referencia a un objeto implementador y le delega el trabajo concreto. Esto evita la explosión combinatorial de clases cuando ambas dimensiones pueden variar.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Renderizado multiplataforma</strong>
+      <p style="margin-top:.35rem">Formas geométricas (Círculo, Rectángulo) separadas del motor de renderizado (Canvas, SVG).</p>
+    </div>
+    <div>
+      <strong>2. Sistemas de notificaciones</strong>
+      <p style="margin-top:.35rem">Tipos de alerta (Urgente, Informativa) separados del canal de envío (Email, SMS, Push).</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>// Implementador
+class Renderizador {
+  renderizarCirculo(x, y, radio) { throw new Error('Abstracto'); }
+}
+class RenderizadorCanvas extends Renderizador {
+  renderizarCirculo(x, y, radio) {
+    console.log(`Canvas: círculo en (${x},${y}) r=${radio}`);
+  }
+}
+class RenderizadorSVG extends Renderizador {
+  renderizarCirculo(x, y, radio) {
+    console.log(`&lt;circle cx=&quot;${x}&quot; cy=&quot;${y}&quot; r=&quot;${radio}&quot;/&gt;`);
+  }
+}
+
+// Abstracción
+class Forma {
+  constructor(renderizador) { this.renderizador = renderizador; }
+  dibujar() { throw new Error('Abstracto'); }
+}
+class Circulo extends Forma {
+  constructor(x, y, radio, renderizador) {
+    super(renderizador);
+    this.x = x; this.y = y; this.radio = radio;
+  }
+  dibujar() { this.renderizador.renderizarCirculo(this.x, this.y, this.radio); }
+}
+
+// Uso — misma forma, distintos renderizadores
+const c1 = new Circulo(10, 20, 15, new RenderizadorCanvas());
+const c2 = new Circulo(10, 20, 15, new RenderizadorSVG());
+c1.dibujar(); c2.dibujar();</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public interface Renderizador {
+    void renderizarCirculo(int x, int y, int radio);
+}
+
+public class RenderizadorCanvas implements Renderizador {
+    public void renderizarCirculo(int x, int y, int radio) {
+        System.out.println(&quot;Canvas: círculo en (&quot; + x + &quot;,&quot; + y + &quot;) r=&quot; + radio);
+    }
+}
+
+public abstract class Forma {
+    protected Renderizador renderizador;
+    public Forma(Renderizador r) { this.renderizador = r; }
+    public abstract void dibujar();
+}
+
+public class Circulo extends Forma {
+    private int x, y, radio;
+    public Circulo(int x, int y, int radio, Renderizador r) {
+        super(r); this.x = x; this.y = y; this.radio = radio;
+    }
+    public void dibujar() { renderizador.renderizarCirculo(x, y, radio); }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class Forma { #renderizador Renderizador +dibujar()* }
+    class Circulo { -x -y -radio +dibujar() }
+    class Renderizador { <<interface>> +renderizarCirculo() }
+    class RenderizadorCanvas { +renderizarCirculo() }
+    class RenderizadorSVG   { +renderizarCirculo() }
+    Forma <|-- Circulo
+    Forma o--> Renderizador
+    Renderizador <|.. RenderizadorCanvas
+    Renderizador <|.. RenderizadorSVG</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando solo hay una dimensión de variación; un simple polimorfismo es suficiente.</li><li>Si la abstracción y la implementación raramente cambian independientemente, el patrón añade complejidad sin beneficio.</li><li>Para sistemas pequeños donde la jerarquía de clases no crecerá.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

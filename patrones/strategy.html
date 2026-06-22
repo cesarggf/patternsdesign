@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Strategy — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#7c3aed">Comportamiento</div>
+    <h1>Strategy</h1>
+    <p class="patron-desc">Definir una familia de algoritmos, encapsular cada uno y hacerlos intercambiables, permitiendo que el algoritmo varíe independientemente del cliente.</p>
+    <span class="patron-badge pb-Comportamiento">Comportamiento</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Strategy extrae los algoritmos variantes en clases separadas llamadas estrategias. El contexto mantiene una referencia a una estrategia y la delega el trabajo. En tiempo de ejecución se puede cambiar la estrategia sin modificar el contexto. Elimina condicionales extensos para selección de algoritmos.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Ordenamiento configurable</strong>
+      <p style="margin-top:.35rem">Un sistema puede ordenar datos por distintos criterios (precio, fecha, popularidad) sin cambiar el código base.</p>
+    </div>
+    <div>
+      <strong>2. Cálculo de descuentos</strong>
+      <p style="margin-top:.35rem">Distintas estrategias: porcentual, monto fijo, 2x1 — aplicadas según el tipo de cliente.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>// Estrategias de descuento
+const descuentoPorcentaje = (precio, valor) =&gt; precio * (1 - valor / 100);
+const descuentoFijo       = (precio, valor) =&gt; Math.max(0, precio - valor);
+const descuento2x1        = (precio)        =&gt; precio / 2;
+
+// Contexto
+class Carrito {
+  constructor() { this.items = []; this.estrategia = null; }
+
+  setEstrategia(fn) { this.estrategia = fn; }
+  agregar(item)     { this.items.push(item); }
+
+  calcularTotal() {
+    const subtotal = this.items.reduce((s, i) =&gt; s + i.precio, 0);
+    return this.estrategia ? this.estrategia(subtotal, 20) : subtotal;
+  }
+}
+
+const carrito = new Carrito();
+carrito.agregar({ nombre: 'Laptop', precio: 1000 });
+carrito.agregar({ nombre: 'Mouse',  precio: 50 });
+
+carrito.setEstrategia(descuentoPorcentaje);
+console.log('Con 20% dto:', carrito.calcularTotal()); // 840
+
+carrito.setEstrategia(descuentoFijo);
+console.log('Con $20 dto:', carrito.calcularTotal()); // 1030
+
+carrito.setEstrategia(descuento2x1);
+console.log('Con 2x1:',    carrito.calcularTotal()); // 525</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>@FunctionalInterface
+public interface EstrategiaDescuento {
+    double aplicar(double precio, double parametro);
+}
+
+public class Carrito {
+    private List&lt;Double&gt; precios = new ArrayList&lt;&gt;();
+    private EstrategiaDescuento estrategia;
+
+    public void setEstrategia(EstrategiaDescuento e) { estrategia = e; }
+    public void agregar(double precio) { precios.add(precio); }
+
+    public double calcularTotal() {
+        double subtotal = precios.stream().mapToDouble(Double::doubleValue).sum();
+        return estrategia != null ? estrategia.aplicar(subtotal, 20) : subtotal;
+    }
+
+    public static void main(String[] args) {
+        Carrito c = new Carrito();
+        c.agregar(1000.0); c.agregar(50.0);
+
+        c.setEstrategia((precio, val) -&gt; precio * (1 - val / 100)); // 20% dto
+        System.out.println(&quot;Con 20% dto: &quot; + c.calcularTotal());    // 840.0
+
+        c.setEstrategia((precio, val) -&gt; Math.max(0, precio - val)); // fijo
+        System.out.println(&quot;Con $20 dto: &quot; + c.calcularTotal());    // 1030.0
+    }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class Carrito { -estrategia EstrategiaDescuento +setEstrategia() +calcularTotal() }
+    class EstrategiaDescuento { <<interface>> +aplicar(precio, param) }
+    class DescPorcentaje { +aplicar(precio, param) }
+    class DescFijo       { +aplicar(precio, param) }
+    class Desc2x1        { +aplicar(precio, param) }
+    Carrito --> EstrategiaDescuento
+    EstrategiaDescuento <|.. DescPorcentaje
+    EstrategiaDescuento <|.. DescFijo
+    EstrategiaDescuento <|.. Desc2x1</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando solo hay una variante del algoritmo y no se espera que cambie.</li><li>Si los algoritmos son tan simples que extraerlos a clases completas es excesivo; bastan funciones.</li><li>Cuando los clientes necesitan conocer las diferencias entre estrategias para elegir correctamente.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

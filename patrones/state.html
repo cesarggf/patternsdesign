@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>State — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#7c3aed">Comportamiento</div>
+    <h1>State</h1>
+    <p class="patron-desc">Permitir a un objeto alterar su comportamiento cuando su estado interno cambia, pareciendo que cambia de clase.</p>
+    <span class="patron-badge pb-Comportamiento">Comportamiento</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>State encapsula cada estado posible en un objeto separado. El contexto mantiene una referencia al estado actual y delega las operaciones en él. Cuando ocurre una transición, el contexto cambia su referencia de estado. Elimina grandes condicionales if/switch basados en estado.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Reproductor multimedia</strong>
+      <p style="margin-top:.35rem">Estados: Detenido, Reproduciendo, Pausado. Cada uno maneja Play/Pause/Stop de forma diferente.</p>
+    </div>
+    <div>
+      <strong>2. Semáforo</strong>
+      <p style="margin-top:.35rem">Estados: Rojo, Amarillo, Verde. Cada estado define la duración y el siguiente estado.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>class Reproductor {
+  constructor() { this.estado = new EstadoDetenido(this); }
+  cambiarEstado(estado) { this.estado = estado; }
+  play()  { this.estado.play();  }
+  pause() { this.estado.pause(); }
+  stop()  { this.estado.stop();  }
+}
+
+class EstadoDetenido {
+  constructor(r) { this.r = r; }
+  play()  { console.log('▶ Iniciando...'); this.r.cambiarEstado(new EstadoReproduciendo(this.r)); }
+  pause() { console.log('⚠️ No está reproduciendo'); }
+  stop()  { console.log('⚠️ Ya está detenido'); }
+}
+
+class EstadoReproduciendo {
+  constructor(r) { this.r = r; }
+  play()  { console.log('⚠️ Ya está reproduciendo'); }
+  pause() { console.log('⏸ Pausado'); this.r.cambiarEstado(new EstadoPausado(this.r)); }
+  stop()  { console.log('⏹ Detenido'); this.r.cambiarEstado(new EstadoDetenido(this.r)); }
+}
+
+class EstadoPausado {
+  constructor(r) { this.r = r; }
+  play()  { console.log('▶ Reanudando...'); this.r.cambiarEstado(new EstadoReproduciendo(this.r)); }
+  pause() { console.log('⚠️ Ya está pausado'); }
+  stop()  { console.log('⏹ Detenido'); this.r.cambiarEstado(new EstadoDetenido(this.r)); }
+}
+
+const p = new Reproductor();
+p.play(); p.pause(); p.play(); p.stop();</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public interface EstadoReproductor {
+    void play();
+    void pause();
+    void stop();
+}
+
+public class Reproductor {
+    private EstadoReproductor estado;
+    public Reproductor() { estado = new EstadoDetenido(this); }
+    public void cambiarEstado(EstadoReproductor e) { estado = e; }
+    public void play()  { estado.play(); }
+    public void pause() { estado.pause(); }
+    public void stop()  { estado.stop(); }
+}
+
+public class EstadoDetenido implements EstadoReproductor {
+    private Reproductor r;
+    public EstadoDetenido(Reproductor r) { this.r = r; }
+    public void play()  { System.out.println(&quot;▶ Iniciando&quot;); r.cambiarEstado(new EstadoReproduciendo(r)); }
+    public void pause() { System.out.println(&quot;⚠️ No está reproduciendo&quot;); }
+    public void stop()  { System.out.println(&quot;⚠️ Ya detenido&quot;); }
+}
+
+public class EstadoReproduciendo implements EstadoReproductor {
+    private Reproductor r;
+    public EstadoReproduciendo(Reproductor r) { this.r = r; }
+    public void play()  { System.out.println(&quot;⚠️ Ya reproduciendo&quot;); }
+    public void pause() { System.out.println(&quot;⏸ Pausado&quot;); r.cambiarEstado(new EstadoPausado(r)); }
+    public void stop()  { System.out.println(&quot;⏹ Detenido&quot;); r.cambiarEstado(new EstadoDetenido(r)); }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">stateDiagram-v2
+    [*] --> Detenido
+    Detenido --> Reproduciendo : play()
+    Reproduciendo --> Pausado : pause()
+    Reproduciendo --> Detenido : stop()
+    Pausado --> Reproduciendo : play()
+    Pausado --> Detenido : stop()</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando solo hay dos estados y la lógica es trivial; un boolean es más claro.</li><li>Si las transiciones de estado son pocas y simples, los condicionales son más legibles.</li><li>Demasiados estados sin relación entre sí pueden producir una explosión de clases.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

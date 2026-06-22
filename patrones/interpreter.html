@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Interpreter — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#7c3aed">Comportamiento</div>
+    <h1>Interpreter</h1>
+    <p class="patron-desc">Dada una gramática para un lenguaje, definir una representación de esa gramática junto con un intérprete que use dicha representación para interpretar sentencias en el lenguaje.</p>
+    <span class="patron-badge pb-Comportamiento">Comportamiento</span>
+  </div>
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Interpreter define una clase por cada regla gramatical del lenguaje. Las expresiones terminales son las hojas; las no terminales combinan otras expresiones. Útil para lenguajes pequeños o DSLs (Domain Specific Languages) como consultas de búsqueda, expresiones matemáticas o reglas de negocio.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem">
+      <strong>1. Calculadora de expresiones</strong>
+      <p style="margin-top:.35rem">Interpretar expresiones matemáticas como '3 + 4 * 2' siguiendo reglas de gramática.</p>
+    </div>
+    <div>
+      <strong>2. Motor de reglas de negocio</strong>
+      <p style="margin-top:.35rem">Evaluar reglas como 'edad &gt; 18 AND suscripcion = premium' sobre un contexto de datos.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active">
+      <div class="code-lang">JavaScript</div>
+      <pre>// Expresiones terminales
+class Numero {
+  constructor(valor) { this.valor = valor; }
+  interpretar() { return this.valor; }
+}
+
+// Expresiones no terminales
+class Suma {
+  constructor(izq, der) { this.izq = izq; this.der = der; }
+  interpretar() { return this.izq.interpretar() + this.der.interpretar(); }
+}
+class Multiplicacion {
+  constructor(izq, der) { this.izq = izq; this.der = der; }
+  interpretar() { return this.izq.interpretar() * this.der.interpretar(); }
+}
+class Resta {
+  constructor(izq, der) { this.izq = izq; this.der = der; }
+  interpretar() { return this.izq.interpretar() - this.der.interpretar(); }
+}
+
+// Evaluar: (3 + 4) * 2 - 1
+const expresion = new Resta(
+  new Multiplicacion(
+    new Suma(new Numero(3), new Numero(4)),
+    new Numero(2)
+  ),
+  new Numero(1)
+);
+
+console.log('Resultado:', expresion.interpretar()); // 13</pre>
+    </div>
+    <div id="tab-java" class="tab-content">
+      <div class="code-lang">Java</div>
+      <pre>public interface Expresion {
+    int interpretar();
+}
+
+public class Numero implements Expresion {
+    private int valor;
+    public Numero(int v) { valor = v; }
+    public int interpretar() { return valor; }
+}
+
+public class Suma implements Expresion {
+    private Expresion izq, der;
+    public Suma(Expresion i, Expresion d) { izq=i; der=d; }
+    public int interpretar() { return izq.interpretar() + der.interpretar(); }
+}
+
+public class Multiplicacion implements Expresion {
+    private Expresion izq, der;
+    public Multiplicacion(Expresion i, Expresion d) { izq=i; der=d; }
+    public int interpretar() { return izq.interpretar() * der.interpretar(); }
+}
+
+// Evaluar (3 + 4) * 2
+public class Main {
+    public static void main(String[] args) {
+        Expresion exp = new Multiplicacion(
+            new Suma(new Numero(3), new Numero(4)),
+            new Numero(2)
+        );
+        System.out.println(&quot;Resultado: &quot; + exp.interpretar()); // 14
+    }
+}</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box">
+      <div class="mermaid">classDiagram
+    class Expresion { <<interface>> +interpretar() int }
+    class Numero         { -valor +interpretar() }
+    class Suma           { -izq -der +interpretar() }
+    class Multiplicacion { -izq -der +interpretar() }
+    class Resta          { -izq -der +interpretar() }
+    Expresion <|.. Numero
+    Expresion <|.. Suma
+    Expresion <|.. Multiplicacion
+    Expresion <|.. Resta
+    Suma --> Expresion
+    Multiplicacion --> Expresion
+    Resta --> Expresion</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Para gramáticas complejas con muchas reglas; la cantidad de clases crece exponencialmente.</li><li>Cuando el rendimiento es crítico; el patrón no es eficiente para gramáticas grandes.</li><li>Existen herramientas como ANTLR o parser combinators más adecuadas para lenguajes reales.</li></ul>
+  </div>
+
+</div>
+
+<footer>
+  <p>Patrones de Diseño GoF &mdash; Referencia en Español</p>
+</footer>
+
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>
