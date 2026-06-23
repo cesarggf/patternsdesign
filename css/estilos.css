@@ -112,3 +112,41 @@ pre { background: var(--code-bg); color: #e2e8f0; border-radius: 8px; padding: 1
 
 /* FOOTER */
 footer { text-align: center; padding: 2rem; font-size: .85rem; color: var(--text-muted); border-top: 1px solid var(--border); }
+
+/* THEME TOGGLE BUTTON */
+.theme-toggle { margin-left: auto; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 999px; padding: .4rem 1rem; cursor: pointer; font-size: .82rem; font-weight: 600; display: flex; align-items: center; gap: .4rem; transition: all .2s; white-space: nowrap; }
+.theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+
+/* DARK MODE */
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --border: #334155;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --code-bg: #0d1117;
+  --shadow: 0 1px 3px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+}
+[data-theme="dark"] .hero { background: linear-gradient(135deg, #0a1628 0%, #1d3a7a 60%, #4c1d95 100%); }
+[data-theme="dark"] .diagram-box { background: #1e293b; }
+[data-theme="dark"] .warn-box { background: #1c1008; border-left-color: #f97316; }
+[data-theme="dark"] .badge-Creacional    { background: #064e3b; color: #6ee7b7; }
+[data-theme="dark"] .badge-Estructural   { background: #451a03; color: #fcd34d; }
+[data-theme="dark"] .badge-Comportamiento{ background: #2e1065; color: #c4b5fd; }
+[data-theme="dark"] .badge-Integración   { background: #0c2a4a; color: #67e8f9; }
+[data-theme="dark"] .badge-Arquitectura  { background: #4c0519; color: #fda4af; }
+[data-theme="dark"] .pb-Creacional    { background: #064e3b; color: #6ee7b7; }
+[data-theme="dark"] .pb-Estructural   { background: #451a03; color: #fcd34d; }
+[data-theme="dark"] .pb-Comportamiento{ background: #2e1065; color: #c4b5fd; }
+[data-theme="dark"] .pb-Integración   { background: #0c2a4a; color: #67e8f9; }
+[data-theme="dark"] .pb-Arquitectura  { background: #4c0519; color: #fda4af; }
+
+/* Integración y Arquitectura */
+.badge-Integración    { background: #cffafe; color: #164e63; }
+.badge-Arquitectura   { background: #ffe4e6; color: #881337; }
+.pb-Integración       { background: #cffafe; color: #164e63; }
+.pb-Arquitectura      { background: #ffe4e6; color: #881337; }
+.cat-integracion .category-title::before  { background: #0891b2; }
+.cat-arquitectura .category-title::before { background: #be123c; }
+.filter-btn[data-cat="Integración"].active  { background: #0891b2; border-color: #0891b2; }
+.filter-btn[data-cat="Arquitectura"].active { background: #be123c; border-color: #be123c; }

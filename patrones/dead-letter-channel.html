@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dead Letter Channel — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#0891b2">Integración</div>
+    <h1>Dead Letter Channel</h1>
+    <p class="patron-desc">Redirigir automáticamente los mensajes que no pueden procesarse correctamente a un canal especial para su inspección y manejo posterior.</p>
+    <span class="patron-badge pb-Integración">Integración</span>
+  </div>
+</div>
+<div class="content-wrapper">
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>El Dead Letter Channel (DLC) es un canal de destino para mensajes fallidos: mensajes con formato inválido, mensajes expirados o aquellos que causaron errores después de N reintentos. Evita que mensajes problemáticos bloqueen el canal principal. Los operadores pueden inspeccionar el DLC, corregir los mensajes y reenviarlos.</p>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem"><strong>1. Procesamiento de facturas</strong><p style="margin-top:.35rem">Facturas con esquema inválido van al DLC; el equipo las corrige manualmente y las reinyecta.</p></div>
+    <div><strong>2. Cola de emails fallidos</strong><p style="margin-top:.35rem">Emails que no pudieron enviarse tras 3 reintentos se mueven al DLC con el motivo del fallo.</p></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active"><div class="code-lang">JavaScript</div><pre>class ColaMensajes {
+  constructor(nombre, opciones = {}) {
+    this.nombre = nombre;
+    this.cola = [];
+    this.maxReintentos = opciones.maxReintentos || 3;
+    this.dlc = opciones.dlc || null;
+  }
+
+  encolar(mensaje) {
+    this.cola.push({ ...mensaje, intentos: 0 });
+  }
+
+  procesar(handler) {
+    while (this.cola.length &gt; 0) {
+      const msg = this.cola.shift();
+      try {
+        handler(msg);
+        console.log(`✅ [${this.nombre}] procesado: ${msg.id}`);
+      } catch (err) {
+        msg.intentos++;
+        msg.ultimoError = err.message;
+        if (msg.intentos &lt; this.maxReintentos) {
+          console.log(`🔄 Reintento ${msg.intentos}/${this.maxReintentos}: ${msg.id}`);
+          this.cola.push(msg);
+        } else if (this.dlc) {
+          console.log(`💀 Enviando a DLC: ${msg.id} — ${err.message}`);
+          this.dlc.encolar(msg);
+        }
+      }
+    }
+  }
+}
+
+const dlc  = new ColaMensajes('dead-letter');
+const cola = new ColaMensajes('facturas', { maxReintentos: 2, dlc });
+
+cola.encolar({ id: 'F-001', monto: 100 });
+cola.encolar({ id: 'F-002', monto: null }); // inválida
+
+cola.procesar(msg =&gt; {
+  if (!msg.monto) throw new Error('Monto requerido');
+  console.log(`Factura ${msg.id}: €${msg.monto}`);
+});
+
+console.log('\nDead Letter Channel:', dlc.cola);</pre></div>
+    <div id="tab-java" class="tab-content"><div class="code-lang">Java</div><pre>public class ColaMensajes {
+    private Queue&lt;Mensaje&gt; cola = new LinkedList&lt;&gt;();
+    private int maxReintentos;
+    private ColaMensajes dlc;
+
+    public ColaMensajes(int maxReintentos, ColaMensajes dlc) {
+        this.maxReintentos = maxReintentos; this.dlc = dlc;
+    }
+
+    public void encolar(Mensaje m) { cola.offer(m); }
+
+    public void procesar(Consumer&lt;Mensaje&gt; handler) {
+        while (!cola.isEmpty()) {
+            Mensaje msg = cola.poll();
+            try {
+                handler.accept(msg);
+                System.out.println(&quot;✅ Procesado: &quot; + msg.id);
+            } catch (Exception e) {
+                msg.intentos++;
+                if (msg.intentos &lt; maxReintentos) {
+                    cola.offer(msg);
+                } else if (dlc != null) {
+                    msg.error = e.getMessage();
+                    System.out.println(&quot;💀 DLC: &quot; + msg.id);
+                    dlc.encolar(msg);
+                }
+            }
+        }
+    }
+}</pre></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box"><div class="mermaid">flowchart LR
+    P[Productor] --> C[/Cola Principal/]
+    C -->|ok| H[Handler]
+    C -->|falla reintento 1| C
+    C -->|falla reintento 2| C
+    C -->|max reintentos| D[/Dead Letter Channel/]
+    D --> OPS[Operaciones<br/>Inspección Manual]</div></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>RabbitMQ (x-dead-letter-exchange)</li><li>AWS SQS (Dead Letter Queue)</li><li>Azure Service Bus (dead-letter subqueue)</li><li>Apache ActiveMQ</li><li>Spring AMQP</li><li>Apache Kafka (retry topics)</li></ul>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando los errores deben tratarse sincrónicamente con el flujo principal.</li><li>Si el DLC no va a ser monitoreado activamente, los mensajes muertos se acumularán sin resolución.</li><li>Para errores transitorios (red, DB temporalmente caída); usa reintentos con backoff antes del DLC.</li></ul>
+  </div>
+</div>
+<footer><p>Patrones de Diseño — Referencia en Español</p></footer>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Iterator — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -136,6 +137,12 @@ for (const c of lista.iteradorAleatorio()) console.log(c);</pre>
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Para arrays simples donde un for/forEach es más claro y directo.</li><li>Cuando la colección siempre se recorre de una sola manera y no hay variación.</li><li>En lenguajes modernos donde los iterables/generators ya cubren este patrón de forma nativa.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Java java.util.Iterator / Iterable</li><li>Python generators (yield)</li><li>C# IEnumerable / foreach</li><li>JavaScript Symbol.iterator / for...of</li><li>MongoDB Cursor</li></ul>
   </div>
 
 </div>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Event Sourcing — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#be123c">Arquitectura</div>
+    <h1>Event Sourcing</h1>
+    <p class="patron-desc">Persistir el estado de una entidad como una secuencia inmutable de eventos en lugar de guardar solo el estado actual.</p>
+    <span class="patron-badge pb-Arquitectura">Arquitectura</span>
+  </div>
+</div>
+<div class="content-wrapper">
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>En Event Sourcing, cada cambio de estado se registra como un evento inmutable en un log (event store). El estado actual se reconstruye reproduciendo todos los eventos. Provee historial completo de auditoría, permite reconstruir el estado en cualquier punto del tiempo y facilita la integración con CQRS y el debug en producción.</p>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem"><strong>1. Cuenta bancaria</strong><p style="margin-top:.35rem">El saldo se calcula sumando los eventos DepositoRealizado y RetiroRealizado. El historial completo está disponible para auditoría.</p></div>
+    <div><strong>2. Carrito de compra</strong><p style="margin-top:.35rem">Los eventos ItemAgregado, ItemEliminado y CuponAplicado reconstruyen el estado actual del carrito en cualquier momento.</p></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active"><div class="code-lang">JavaScript</div><pre>class EventStore {
+  constructor() { this.eventos = []; }
+  guardar(evento) {
+    const registrado = { ...evento, timestamp: new Date().toISOString(), version: this.eventos.length + 1 };
+    this.eventos.push(registrado);
+    return registrado;
+  }
+  obtenerPara(agregadoId) { return this.eventos.filter(e =&gt; e.agregadoId === agregadoId); }
+}
+
+class CuentaBancaria {
+  constructor(id) { this.id = id; this.saldo = 0; this.titular = null; }
+
+  // Reconstruir estado desde eventos
+  static desde(eventos) {
+    const cuenta = new CuentaBancaria(eventos[0]?.agregadoId);
+    eventos.forEach(e =&gt; cuenta.aplicar(e));
+    return cuenta;
+  }
+
+  aplicar(evento) {
+    switch (evento.tipo) {
+      case 'CuentaAbierta':   this.titular = evento.datos.titular; this.saldo = 0; break;
+      case 'DepositoRealizado': this.saldo += evento.datos.monto; break;
+      case 'RetiroRealizado':   this.saldo -= evento.datos.monto; break;
+    }
+  }
+}
+
+// Uso
+const store = new EventStore();
+const cuentaId = 'C-001';
+
+store.guardar({ agregadoId: cuentaId, tipo: 'CuentaAbierta',    datos: { titular: 'Cesar' } });
+store.guardar({ agregadoId: cuentaId, tipo: 'DepositoRealizado', datos: { monto: 1000 } });
+store.guardar({ agregadoId: cuentaId, tipo: 'DepositoRealizado', datos: { monto: 500  } });
+store.guardar({ agregadoId: cuentaId, tipo: 'RetiroRealizado',   datos: { monto: 200  } });
+
+const eventos = store.obtenerPara(cuentaId);
+const cuenta  = CuentaBancaria.desde(eventos);
+console.log(`Saldo de ${cuenta.titular}: €${cuenta.saldo}`); // €1300
+console.log(`Historial: ${eventos.length} eventos`);</pre></div>
+    <div id="tab-java" class="tab-content"><div class="code-lang">Java</div><pre>public sealed interface Evento permits CuentaAbierta, Deposito, Retiro {
+    String agregadoId();
+}
+public record CuentaAbierta(String agregadoId, String titular) implements Evento {}
+public record Deposito(String agregadoId, double monto) implements Evento {}
+public record Retiro(String agregadoId, double monto) implements Evento {}
+
+public class CuentaBancaria {
+    private String titular;
+    private double saldo;
+
+    public static CuentaBancaria desde(List&lt;Evento&gt; eventos) {
+        CuentaBancaria c = new CuentaBancaria();
+        eventos.forEach(c::aplicar);
+        return c;
+    }
+
+    private void aplicar(Evento e) {
+        switch (e) {
+            case CuentaAbierta ev -&gt; titular = ev.titular();
+            case Deposito ev      -&gt; saldo += ev.monto();
+            case Retiro ev        -&gt; saldo -= ev.monto();
+        }
+    }
+    public double getSaldo() { return saldo; }
+}</pre></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box"><div class="mermaid">flowchart LR
+    C[Cliente] -->|comando| A[Agregado]
+    A -->|genera| ES[(Event Store<br/>log inmutable)]
+    ES -->|reproduce| A2[Estado actual]
+    ES -->|proyecta| RM[Read Model]</div></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>EventStoreDB</li><li>Axon Framework</li><li>Apache Kafka (como event log)</li><li>Marten (.NET)</li><li>Commanded (Elixir)</li><li>AWS DynamoDB Streams</li></ul>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando no necesitas historial de cambios ni auditoría; gestionar el event store es complejo.</li><li>Para entidades con estado extremadamente volátil (millones de eventos); requiere snapshotting.</li><li>Si el equipo no está familiarizado; la curva de aprendizaje y el overhead operacional son altos.</li></ul>
+  </div>
+</div>
+<footer><p>Patrones de Diseño — Referencia en Español</p></footer>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

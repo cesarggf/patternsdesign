@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Bridge — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -131,6 +132,12 @@ public class Circulo extends Forma {
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Cuando solo hay una dimensión de variación; un simple polimorfismo es suficiente.</li><li>Si la abstracción y la implementación raramente cambian independientemente, el patrón añade complejidad sin beneficio.</li><li>Para sistemas pequeños donde la jerarquía de clases no crecerá.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>JDBC API (separa interfaz de driver concreto)</li><li>Java AWT / SWT</li><li>Spring JDBC (JdbcTemplate sobre distintos drivers)</li><li>Apache Logging (commons-logging sobre Log4j/JUL)</li><li>Mesa (implementación OpenGL en Linux)</li></ul>
   </div>
 
 </div>

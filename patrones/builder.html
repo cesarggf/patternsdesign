@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Builder — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -149,6 +150,12 @@ console.log(sql);
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Para objetos simples con pocos atributos; un constructor con parámetros es más directo.</li><li>Cuando la construcción siempre sigue exactamente el mismo proceso sin variaciones.</li><li>Si el objeto no es inmutable ni complejo, el patrón agrega burocracia sin beneficio.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Java StringBuilder / StringBuilder</li><li>Lombok @Builder</li><li>OkHttp3 Request.Builder</li><li>Hibernate Criteria API</li><li>Protobuf Message.Builder</li></ul>
   </div>
 
 </div>

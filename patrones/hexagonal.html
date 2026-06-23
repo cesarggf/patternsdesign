@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arquitectura Hexagonal — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#be123c">Arquitectura</div>
+    <h1>Arquitectura Hexagonal</h1>
+    <p class="patron-desc">Aislar el núcleo de la aplicación (dominio + casos de uso) de los detalles tecnológicos externos, conectándolos mediante puertos e adaptadores.</p>
+    <span class="patron-badge pb-Arquitectura">Arquitectura</span>
+  </div>
+</div>
+<div class="content-wrapper">
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>También conocida como Ports &amp; Adapters (Alistair Cockburn), la arquitectura hexagonal coloca la lógica de negocio en el centro y define Puertos (interfaces) por donde se comunica con el exterior. Los Adaptadores implementan esos puertos: un adaptador HTTP, un adaptador de BD, un adaptador de email. El core no depende de ningún framework o tecnología concreta.</p>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem"><strong>1. Sistema de procesamiento de pagos</strong><p style="margin-top:.35rem">El core de pagos no sabe si usa Stripe o PayPal; el adaptador concreto se inyecta en runtime.</p></div>
+    <div><strong>2. Servicio de notificaciones</strong><p style="margin-top:.35rem">El caso de uso 'notificar usuario' no conoce si el canal es email, SMS o push; lo decide el adaptador.</p></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active"><div class="code-lang">JavaScript</div><pre>// Puerto (interfaz que el core define)
+// En JS, los puertos son contratos implícitos / interfaces documentadas
+
+// CORE — no depende de nada externo
+class ServicioNotificaciones {
+  constructor(canalNotificacion) {
+    // Puerto inyectado (el adaptador concreto llega desde fuera)
+    this.canal = canalNotificacion;
+  }
+
+  notificarPedidoConfirmado(usuario, pedido) {
+    // Lógica de negocio pura
+    const mensaje = {
+      destinatario: usuario.email,
+      asunto: `Pedido #${pedido.id} confirmado`,
+      cuerpo: `Hola ${usuario.nombre}, tu pedido de €${pedido.total} fue confirmado.`
+    };
+    this.canal.enviar(mensaje);
+  }
+}
+
+// ADAPTADORES (infraestructura)
+class AdaptadorEmail {
+  enviar({ destinatario, asunto, cuerpo }) {
+    console.log(`[SMTP] → ${destinatario}`);
+    console.log(`  Asunto: ${asunto}`);
+    console.log(`  ${cuerpo}`);
+  }
+}
+
+class AdaptadorConsola {
+  enviar({ destinatario, asunto, cuerpo }) {
+    console.log(`[Consola] Para: ${destinatario} | ${asunto}`);
+  }
+}
+
+class AdaptadorSMS {
+  enviar({ destinatario, cuerpo }) {
+    console.log(`[SMS] → ${destinatario}: ${cuerpo.substring(0, 60)}...`);
+  }
+}
+
+// Composición — el adaptador se inyecta según el entorno
+const adaptador  = process.env.NODE_ENV === 'test'
+  ? new AdaptadorConsola()
+  : new AdaptadorEmail();
+
+const servicio = new ServicioNotificaciones(adaptador);
+servicio.notificarPedidoConfirmado(
+  { nombre: 'Cesar', email: 'cesar@example.com' },
+  { id: 42, total: 199.99 }
+);</pre></div>
+    <div id="tab-java" class="tab-content"><div class="code-lang">Java</div><pre>// Puerto (interfaz del core)
+public interface CanalNotificacion {
+    void enviar(Mensaje mensaje);
+}
+
+// CORE — lógica de negocio pura
+public class ServicioNotificaciones {
+    private final CanalNotificacion canal;
+
+    public ServicioNotificaciones(CanalNotificacion canal) { this.canal = canal; }
+
+    public void notificarPedido(Usuario u, Pedido p) {
+        canal.enviar(new Mensaje(
+            u.getEmail(),
+            &quot;Pedido #&quot; + p.getId() + &quot; confirmado&quot;,
+            &quot;Hola &quot; + u.getNombre() + &quot;, pedido de €&quot; + p.getTotal()
+        ));
+    }
+}
+
+// ADAPTADORES (infraestructura)
+public class AdaptadorEmail implements CanalNotificacion {
+    public void enviar(Mensaje m) {
+        System.out.println(&quot;[SMTP] → &quot; + m.destinatario() + &quot; | &quot; + m.asunto());
+    }
+}
+public class AdaptadorSMS implements CanalNotificacion {
+    public void enviar(Mensaje m) {
+        System.out.println(&quot;[SMS] → &quot; + m.destinatario());
+    }
+}
+
+// Test usa adaptador en memoria
+public class AdaptadorFake implements CanalNotificacion {
+    public List&lt;Mensaje&gt; enviados = new ArrayList&lt;&gt;();
+    public void enviar(Mensaje m) { enviados.add(m); }
+}</pre></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box"><div class="mermaid">flowchart TB
+    subgraph Core
+      UC[Casos de Uso] --> DOM[Dominio]
+    end
+    HTTP[Adaptador HTTP<br/>entrada] -->|Puerto In| UC
+    CLI[Adaptador CLI<br/>entrada]  -->|Puerto In| UC
+    UC -->|Puerto Out| BD[Adaptador BD<br/>salida]
+    UC -->|Puerto Out| EML[Adaptador Email<br/>salida]</div></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Spring Boot + puertos como interfaces</li><li>NestJS (módulos como adaptadores)</li><li>Quarkus</li><li>FastAPI</li><li>Go con interfaces</li><li>Clean Architecture de Uncle Bob (variante)</li></ul>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Para aplicaciones CRUD simples sin lógica de dominio compleja; es sobredimensionado.</li><li>Equipos pequeños con poco tiempo donde la estructura adicional ralentiza el desarrollo inicial.</li><li>Cuando todos los casos de uso son simples consultas sin reglas de negocio.</li></ul>
+  </div>
+</div>
+<footer><p>Patrones de Diseño — Referencia en Español</p></footer>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

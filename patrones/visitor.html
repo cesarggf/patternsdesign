@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Visitor — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -135,6 +136,12 @@ public class CalculadorTotal implements Visitante {
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Cuando la jerarquía de objetos cambia frecuentemente; añadir un nuevo elemento requiere modificar todos los visitantes.</li><li>Si el encapsulamiento es crítico; los visitantes necesitan acceder a los detalles internos de los elementos.</li><li>Para jerarquías simples con pocas operaciones, la complejidad del double dispatch no se justifica.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Java compiler AST Visitors (javax.lang.model)</li><li>ANTLR4 Listener/Visitor</li><li>Checkstyle / PMD (visitan AST)</li><li>Hibernate HQL AST Visitor</li><li>Babel.js plugin system (AST transforms)</li></ul>
   </div>
 
 </div>

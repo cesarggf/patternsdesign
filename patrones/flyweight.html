@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Flyweight — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -138,6 +139,12 @@ public class Arbol {
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Cuando el número de objetos es pequeño; la complejidad del patrón no compensa.</li><li>Si el estado extrínseco es difícil de externalizar o complica significativamente el código cliente.</li><li>Cuando la memoria no es una restricción real del sistema.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Java String pool (intern())</li><li>Java Integer.valueOf() (caché -128..127)</li><li>CSS font rendering engines</li><li>Pixi.js / Three.js (instanced meshes)</li><li>Apache Commons Pool</li></ul>
   </div>
 
 </div>

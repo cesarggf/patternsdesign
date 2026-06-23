@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Saga — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#0891b2">Integración</div>
+    <h1>Saga</h1>
+    <p class="patron-desc">Gestionar transacciones distribuidas que abarcan múltiples servicios mediante una secuencia de transacciones locales con compensaciones en caso de fallo.</p>
+    <span class="patron-badge pb-Integración">Integración</span>
+  </div>
+</div>
+<div class="content-wrapper">
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Saga divide una transacción larga en transacciones locales de cada servicio. Si un paso falla, ejecuta transacciones compensatorias para deshacer los pasos anteriores. Existen dos variantes: Choreography (cada servicio publica eventos y reacciona) y Orchestration (un orquestador central coordina los pasos).</p>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem"><strong>1. Reserva de viaje</strong><p style="margin-top:.35rem">Reservar vuelo → hotel → coche de alquiler. Si falla el coche, cancelar hotel y vuelo como compensación.</p></div>
+    <div><strong>2. Proceso de compra e-commerce</strong><p style="margin-top:.35rem">Crear pedido → cobrar pago → reducir inventario → enviar. Si falla el cobro, cancelar el pedido.</p></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active"><div class="code-lang">JavaScript</div><pre>class SagaOrquestador {
+  constructor(pasos) { this.pasos = pasos; this.ejecutados = []; }
+
+  async ejecutar(contexto) {
+    for (const paso of this.pasos) {
+      try {
+        console.log(`▶ Ejecutando: ${paso.nombre}`);
+        await paso.ejecutar(contexto);
+        this.ejecutados.unshift(paso); // prepend para compensar en orden inverso
+      } catch (err) {
+        console.error(`❌ Falló: ${paso.nombre} — ${err.message}`);
+        console.log('↩ Iniciando compensación...');
+        await this.compensar(contexto);
+        throw err;
+      }
+    }
+    console.log('✅ Saga completada');
+  }
+
+  async compensar(contexto) {
+    for (const paso of this.ejecutados) {
+      console.log(`↩ Compensando: ${paso.nombre}`);
+      await paso.compensar(contexto);
+    }
+  }
+}
+
+// Definición de pasos
+const saga = new SagaOrquestador([
+  {
+    nombre: 'Crear pedido',
+    ejecutar:  async ctx =&gt; { ctx.pedidoId = 'P-' + Date.now(); },
+    compensar: async ctx =&gt; console.log(`Cancelando pedido ${ctx.pedidoId}`)
+  },
+  {
+    nombre: 'Cobrar pago',
+    ejecutar:  async ctx =&gt; { throw new Error('Tarjeta rechazada'); },
+    compensar: async ctx =&gt; console.log('Reembolsando pago')
+  },
+  {
+    nombre: 'Reducir inventario',
+    ejecutar:  async ctx =&gt; { ctx.reservado = true; },
+    compensar: async ctx =&gt; console.log('Restaurando inventario')
+  }
+]);
+
+saga.ejecutar({}).catch(() =&gt; {});</pre></div>
+    <div id="tab-java" class="tab-content"><div class="code-lang">Java</div><pre>public interface PasoSaga {
+    void ejecutar(Map&lt;String,Object&gt; ctx) throws Exception;
+    void compensar(Map&lt;String,Object&gt; ctx);
+    String getNombre();
+}
+
+public class SagaOrquestador {
+    private List&lt;PasoSaga&gt; pasos;
+    private Deque&lt;PasoSaga&gt; ejecutados = new ArrayDeque&lt;&gt;();
+
+    public SagaOrquestador(List&lt;PasoSaga&gt; pasos) { this.pasos = pasos; }
+
+    public void ejecutar(Map&lt;String,Object&gt; ctx) {
+        for (PasoSaga paso : pasos) {
+            try {
+                System.out.println(&quot;▶ &quot; + paso.getNombre());
+                paso.ejecutar(ctx);
+                ejecutados.push(paso);
+            } catch (Exception e) {
+                System.out.println(&quot;❌ Falló: &quot; + e.getMessage());
+                ejecutados.forEach(p -&gt; p.compensar(ctx));
+                throw new RuntimeException(&quot;Saga revertida&quot;, e);
+            }
+        }
+        System.out.println(&quot;✅ Saga completada&quot;);
+    }
+}</pre></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box"><div class="mermaid">sequenceDiagram
+    participant O as Orquestador
+    participant A as Servicio A<br/>Pedidos
+    participant B as Servicio B<br/>Pagos
+    participant C as Servicio C<br/>Inventario
+    O->>A: crear pedido
+    A-->>O: ok
+    O->>B: cobrar pago
+    B-->>O: ❌ error
+    O->>A: cancelar pedido (compensar)</div></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Axon Framework (Java)</li><li>Netflix Conductor</li><li>AWS Step Functions</li><li>Temporal.io</li><li>MicroProfile LRA</li><li>NestJS Saga (CQRS module)</li></ul>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Para transacciones simples que afectan a un único servicio o base de datos; usa una transacción ACID normal.</li><li>Cuando la consistencia eventual no es aceptable y se requiere atomicidad estricta.</li><li>Si las compensaciones son imposibles o extremadamente difíciles (ej: ya se envió un email).</li></ul>
+  </div>
+</div>
+<footer><p>Patrones de Diseño — Referencia en Español</p></footer>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

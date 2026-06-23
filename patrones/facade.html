@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Facade — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -148,6 +149,12 @@ cine.terminar();</pre>
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Cuando los clientes necesitan acceso granular a las funcionalidades internas del subsistema.</li><li>Si la fachada se convierte en un objeto 'dios' con demasiadas responsabilidades.</li><li>En sistemas simples donde la fachada no reduce significativamente la complejidad.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>SLF4J (fachada sobre frameworks de logging)</li><li>Spring JdbcTemplate</li><li>jQuery (fachada sobre DOM API)</li><li>Hibernate Session (fachada sobre SQL)</li><li>AWS SDK clientes de alto nivel</li></ul>
   </div>
 
 </div>

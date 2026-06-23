@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MVVM (Model-View-ViewModel) — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#be123c">Arquitectura</div>
+    <h1>MVVM (Model-View-ViewModel)</h1>
+    <p class="patron-desc">Separar la UI de la lógica de presentación mediante un ViewModel que expone estado observable, permitiendo data-binding bidireccional.</p>
+    <span class="patron-badge pb-Arquitectura">Arquitectura</span>
+  </div>
+</div>
+<div class="content-wrapper">
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>MVVM extiende MVC introduciendo el ViewModel: un objeto que expone propiedades observables y comandos. La Vista se enlaza directamente a esas propiedades mediante data-binding (sin código manual de actualización). El ViewModel no conoce la Vista. Es el patrón dominante en frameworks reactivos como Angular, Vue, SwiftUI y WPF.</p>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem"><strong>1. Formulario de búsqueda reactivo</strong><p style="margin-top:.35rem">El usuario escribe en el campo de búsqueda; el ViewModel filtra resultados automáticamente mediante binding.</p></div>
+    <div><strong>2. Dashboard de métricas en tiempo real</strong><p style="margin-top:.35rem">El ViewModel recibe datos del servidor y actualiza propiedades observables; la Vista se refresca automáticamente.</p></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active"><div class="code-lang">JavaScript</div><pre>// Simulación simple de reactividad (sin framework)
+function reactivo(obj, onChange) {
+  return new Proxy(obj, {
+    set(target, prop, value) {
+      target[prop] = value;
+      onChange(prop, value);
+      return true;
+    }
+  });
+}
+
+// ViewModel
+class BusquedaViewModel {
+  constructor(productos) {
+    this._productos = productos;
+    this.estado = reactivo(
+      { termino: '', resultados: productos, cargando: false },
+      (prop, val) =&gt; this._render(prop, val)
+    );
+  }
+
+  buscar(termino) {
+    this.estado.cargando = true;
+    // Simula async
+    setTimeout(() =&gt; {
+      this.estado.resultados = this._productos.filter(p =&gt;
+        p.nombre.toLowerCase().includes(termino.toLowerCase())
+      );
+      this.estado.cargando = false;
+    }, 300);
+    this.estado.termino = termino;
+  }
+
+  _render(prop, val) {
+    if (prop === 'resultados') {
+      console.log(`Vista: ${val.length} resultado(s):`);
+      val.forEach(r =&gt; console.log(` - ${r.nombre}`));
+    }
+    if (prop === 'cargando') console.log(`Vista: ${val ? 'cargando...' : 'listo'}`);
+  }
+}
+
+const vm = new BusquedaViewModel([
+  { nombre: 'Laptop Pro' }, { nombre: 'Laptop Air' },
+  { nombre: 'Teclado Mecánico' }, { nombre: 'Mouse Inalámbrico' }
+]);
+
+vm.buscar('laptop');</pre></div>
+    <div id="tab-java" class="tab-content"><div class="code-lang">Java</div><pre>// ViewModel con SimpleStringProperty (JavaFX style)
+public class BusquedaViewModel {
+    private ObservableList&lt;Producto&gt; resultados = FXCollections.observableArrayList();
+    private StringProperty termino = new SimpleStringProperty(&quot;&quot;);
+    private List&lt;Producto&gt; todos;
+
+    public BusquedaViewModel(List&lt;Producto&gt; productos) {
+        this.todos = productos;
+        // Binding: cuando cambia termino, filtrar resultados
+        termino.addListener((obs, old, nuevo) -&gt; filtrar(nuevo));
+    }
+
+    private void filtrar(String t) {
+        resultados.setAll(todos.stream()
+            .filter(p -&gt; p.getNombre().toLowerCase().contains(t.toLowerCase()))
+            .collect(Collectors.toList()));
+    }
+
+    // La Vista hace binding a estos
+    public StringProperty terminoProperty() { return termino; }
+    public ObservableList&lt;Producto&gt; getResultados() { return resultados; }
+}</pre></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box"><div class="mermaid">flowchart LR
+    V[Vista<br/>HTML/XML] <-->|data binding| VM[ViewModel<br/>estado observable]
+    VM -->|llama| M[Modelo<br/>datos/servicios]
+    M -->|actualiza| VM</div></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Angular (con RxJS)</li><li>Vue.js (reactive data)</li><li>React + MobX</li><li>WPF / Xamarin (.NET)</li><li>SwiftUI</li><li>Android Jetpack (ViewModel + LiveData)</li></ul>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Para interfaces simples sin estado reactivo; el overhead del binding no compensa.</li><li>En sistemas donde el data-binding bidireccional puede causar bucles infinitos de actualización.</li><li>Con frameworks que no soportan binding nativo; implementarlo manualmente es costoso.</li></ul>
+  </div>
+</div>
+<footer><p>Patrones de Diseño — Referencia en Español</p></footer>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

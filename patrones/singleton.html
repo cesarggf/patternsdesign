@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Singleton — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -125,6 +126,12 @@ console.log(config1 === config2);     // true</pre>
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Cuando necesitas múltiples instancias en entornos de prueba (dificulta el mocking).</li><li>En aplicaciones multihilo sin sincronización adecuada puede causar condiciones de carrera.</li><li>Cuando la clase tiene estado mutable global que complica el razonamiento del sistema.</li><li>Si viola el principio de responsabilidad única (la clase gestiona su propio ciclo de vida).</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Java Runtime (Runtime.getRuntime())</li><li>Spring ApplicationContext</li><li>Log4j / SLF4J Logger</li><li>Hibernate SessionFactory</li><li>Node.js módulos (module cache)</li></ul>
   </div>
 
 </div>

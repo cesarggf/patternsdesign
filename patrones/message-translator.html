@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Message Translator — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#0891b2">Integración</div>
+    <h1>Message Translator</h1>
+    <p class="patron-desc">Transformar el formato o estructura de un mensaje para que sea compatible con el sistema destino.</p>
+    <span class="patron-badge pb-Integración">Integración</span>
+  </div>
+</div>
+<div class="content-wrapper">
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Message Translator convierte mensajes entre diferentes formatos o esquemas de datos (XML↔JSON, SOAP↔REST, modelo de dominio A↔modelo de dominio B). Actúa como un mapeador en el pipeline de integración, permitiendo que sistemas heterogéneos se comuniquen sin cambiar sus contratos internos.</p>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem"><strong>1. Integración CRM ↔ ERP</strong><p style="margin-top:.35rem">El CRM envía clientes en formato propio; el traductor los convierte al esquema esperado por el ERP antes de sincronizar.</p></div>
+    <div><strong>2. API legacy → API REST moderna</strong><p style="margin-top:.35rem">Transformar respuestas XML de un sistema legacy al JSON que espera la app móvil.</p></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active"><div class="code-lang">JavaScript</div><pre>// Formato origen (sistema CRM externo)
+const clienteCRM = {
+  cliente_id: 'C-001',
+  nombre_completo: 'Cesar García',
+  correo_electronico: 'cesar@example.com',
+  telefono_movil: '+34600000000',
+  fecha_alta: '21/06/2026'
+};
+
+// Traductor → formato ERP interno
+function traducirCRMaERP(crm) {
+  const [dia, mes, anio] = crm.fecha_alta.split('/');
+  return {
+    id:        crm.cliente_id,
+    fullName:  crm.nombre_completo,
+    email:     crm.correo_electronico,
+    phone:     crm.telefono_movil,
+    createdAt: `${anio}-${mes}-${dia}T00:00:00Z`,
+    source:    'CRM'
+  };
+}
+
+const clienteERP = traducirCRMaERP(clienteCRM);
+console.log(clienteERP);</pre></div>
+    <div id="tab-java" class="tab-content"><div class="code-lang">Java</div><pre>// DTO origen
+public record ClienteCRM(String cliente_id, String nombre_completo,
+    String correo_electronico, String telefono_movil, String fecha_alta) {}
+
+// DTO destino
+public record ClienteERP(String id, String fullName, String email,
+    String phone, String createdAt, String source) {}
+
+// Traductor
+public class TraductorClienteCRM {
+    public ClienteERP traducir(ClienteCRM crm) {
+        String[] partes = crm.fecha_alta().split(&quot;/&quot;);
+        String iso = partes[2]+&quot;-&quot;+partes[1]+&quot;-&quot;+partes[0]+&quot;T00:00:00Z&quot;;
+        return new ClienteERP(
+            crm.cliente_id(), crm.nombre_completo(),
+            crm.correo_electronico(), crm.telefono_movil(),
+            iso, &quot;CRM&quot;
+        );
+    }
+}</pre></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box"><div class="mermaid">flowchart LR
+    A[Sistema A<br/>CRM] -->|Formato A| T[Message Translator] -->|Formato B| B[Sistema B<br/>ERP]</div></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Apache Camel (Message Translator / Transformer)</li><li>MuleSoft DataWeave</li><li>AWS Glue (ETL)</li><li>Spring Integration Transformer</li><li>XSLT (XML→XML)</li><li>MapStruct (Java bean mapping)</li></ul>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando ambos sistemas pueden acordar un formato común; la traducción añade latencia y puntos de fallo.</li><li>Si la transformación es tan compleja que requiere lógica de negocio; separa en un paso diferente.</li><li>Para transformaciones bidireccionales complejas que no son invertibles.</li></ul>
+  </div>
+</div>
+<footer><p>Patrones de Diseño — Referencia en Español</p></footer>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Prototype — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -134,6 +135,12 @@ console.log(guerrero2.toString()); // Guerrero Élite [Nv.5] — espada, escudo,
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Cuando los objetos tienen pocas propiedades simples; un constructor es más claro.</li><li>Si el objeto contiene referencias circulares, la clonación profunda puede ser extremadamente compleja.</li><li>Cuando clonar viola invariantes del objeto (ej: IDs únicos que no deben duplicarse).</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Spring @Scope('prototype')</li><li>JavaScript Object.create()</li><li>Java Cloneable / clone()</li><li>Dolly (framework de clonación de objetos)</li><li>Redux (state cloning con spread)</li></ul>
   </div>
 
 </div>

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Abstract Factory — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -140,6 +141,12 @@ public class App {
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Cuando solo tienes una familia de productos; basta con Factory Method.</li><li>Si agregar nuevos tipos de productos requiere cambiar la interfaz abstracta, viola el principio abierto/cerrado.</li><li>Para sistemas pequeños, la cantidad de clases introducida puede ser desproporcionada.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Java AWT/Swing (LookAndFeel)</li><li>Spring DataSource / DataSourceAutoConfiguration</li><li>JDBC API (Connection, Statement, ResultSet)</li><li>Apache Commons DBCP</li><li>SWT (Standard Widget Toolkit)</li></ul>
   </div>
 
 </div>

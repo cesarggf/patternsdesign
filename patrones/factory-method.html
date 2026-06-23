@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Factory Method — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -145,6 +146,12 @@ public class CreadorSMS extends CreadorNotificacion {
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Cuando solo tienes un tipo de producto y no se espera variación; añade complejidad innecesaria.</li><li>Si la jerarquía de clases ya es muy profunda, añadir más subclases empeora la mantenibilidad.</li><li>Para lógica de creación trivial, un simple constructor o función es suficiente.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Java Collections.sort() / Comparator</li><li>Spring BeanFactory</li><li>JUnit TestCase</li><li>JDBC DriverManager</li><li>Angular ComponentFactory</li></ul>
   </div>
 
 </div>

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Command — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -135,6 +136,12 @@ public class Historial {
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Para operaciones simples sin necesidad de undo, historial ni colas; agrega burocracia innecesaria.</li><li>Cuando las operaciones siempre se ejecutan de inmediato y no se reutilizan.</li><li>Si el sistema ya tiene un mecanismo transaccional robusto que hace lo mismo.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Spring Batch (Step/Job como comandos)</li><li>Java Swing Actions (AbstractAction)</li><li>Git (commits encapsulan cambios)</li><li>ElectronJS Menu items</li><li>Macro grabbers en IDEs (IntelliJ, VS Code)</li></ul>
   </div>
 
 </div>

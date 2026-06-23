@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Interpreter — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -141,6 +142,12 @@ public class Main {
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Para gramáticas complejas con muchas reglas; la cantidad de clases crece exponencialmente.</li><li>Cuando el rendimiento es crítico; el patrón no es eficiente para gramáticas grandes.</li><li>Existen herramientas como ANTLR o parser combinators más adecuadas para lenguajes reales.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Spring Expression Language (SpEL)</li><li>JEXL (Apache Commons)</li><li>MVEL expression language</li><li>Rhino / Nashorn (JS en JVM)</li><li>Regex engines (java.util.regex)</li></ul>
   </div>
 
 </div>

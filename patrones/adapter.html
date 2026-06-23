@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Adapter — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -135,6 +136,12 @@ public class Tienda {
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Cuando puedes modificar la clase original directamente sin romper otros contratos.</li><li>Si la adaptación requiere cambios muy profundos en el comportamiento, considera Facade o Decorator.</li><li>Demasiados Adapters en cadena dificultan el rastreo de errores y el debugging.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Java InputStreamReader (adapta InputStream a Reader)</li><li>Spring HandlerAdapter (MVC)</li><li>SLF4J (adapta Log4j, JUL, Logback)</li><li>Jackson ObjectMapper (adapta JSON a POJO)</li><li>Vue.js / React adapters de componentes</li></ul>
   </div>
 
 </div>

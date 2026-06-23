@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Composite — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -137,6 +138,12 @@ public class Carpeta extends ElementoSistema {
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Cuando la jerarquía nunca tendrá más de un nivel; una simple lista es suficiente.</li><li>Si los componentes hoja y compuesto tienen operaciones muy distintas, forzar una interfaz común resulta artificial.</li><li>Para estructuras planas donde la recursividad añade overhead sin beneficio real.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Java Swing JComponent</li><li>HTML DOM (Element contiene otros Elements)</li><li>Apache Commons Validator (CompositeValidator)</li><li>React / Vue (árbol de componentes)</li><li>JUnit Suite (agrupa tests)</li></ul>
   </div>
 
 </div>

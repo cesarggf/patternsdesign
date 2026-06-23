@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pipes and Filters — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#0891b2">Integración</div>
+    <h1>Pipes and Filters</h1>
+    <p class="patron-desc">Descomponer el procesamiento de mensajes en una secuencia de pasos independientes (filtros) conectados por canales (pipes).</p>
+    <span class="patron-badge pb-Integración">Integración</span>
+  </div>
+</div>
+<div class="content-wrapper">
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>Pipes and Filters construye un pipeline donde cada filtro realiza una transformación concreta sobre el mensaje y pasa el resultado al siguiente mediante un pipe. Cada filtro es independiente, reutilizable y puede probarse de forma aislada. El pipeline puede reconfigurarse cambiando el orden de los filtros o añadiendo nuevos.</p>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem"><strong>1. Pipeline ETL</strong><p style="margin-top:.35rem">Extraer datos CSV → limpiar nulos → normalizar fechas → transformar moneda → cargar en BD.</p></div>
+    <div><strong>2. Procesamiento de imágenes</strong><p style="margin-top:.35rem">Recibir imagen → redimensionar → convertir a grises → aplicar marca de agua → comprimir → guardar.</p></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active"><div class="code-lang">JavaScript</div><pre>// Pipe: conecta filtros en cadena
+class Pipeline {
+  constructor() { this.filtros = []; }
+  agregar(filtro) { this.filtros.push(filtro); return this; }
+  procesar(entrada) {
+    return this.filtros.reduce((dato, filtro) =&gt; filtro(dato), entrada);
+  }
+}
+
+// Filtros (funciones puras)
+const limpiarEspacios  = texto =&gt; texto.trim();
+const aNombresCompletos = texto =&gt; texto.split(',').map(n =&gt; n.trim()).join(', ');
+const aMayusculas      = texto =&gt; texto.toUpperCase();
+const agregarPrefijo   = texto =&gt; `&gt;&gt; ${texto}`;
+
+// Construcción del pipeline
+const pipeline = new Pipeline()
+  .agregar(limpiarEspacios)
+  .agregar(aNombresCompletos)
+  .agregar(aMayusculas)
+  .agregar(agregarPrefijo);
+
+const resultado = pipeline.procesar('  juan perez , ana garcia , luis mora  ');
+console.log(resultado);
+// &gt;&gt; JUAN PEREZ, ANA GARCIA, LUIS MORA</pre></div>
+    <div id="tab-java" class="tab-content"><div class="code-lang">Java</div><pre>import java.util.*;
+import java.util.function.*;
+
+public class Pipeline&lt;T&gt; {
+    private List&lt;UnaryOperator&lt;T&gt;&gt; filtros = new ArrayList&lt;&gt;();
+
+    public Pipeline&lt;T&gt; agregar(UnaryOperator&lt;T&gt; filtro) {
+        filtros.add(filtro); return this;
+    }
+    public T procesar(T entrada) {
+        T resultado = entrada;
+        for (UnaryOperator&lt;T&gt; f : filtros) resultado = f.apply(resultado);
+        return resultado;
+    }
+
+    public static void main(String[] args) {
+        Pipeline&lt;String&gt; pipeline = new Pipeline&lt;String&gt;()
+            .agregar(String::trim)
+            .agregar(s -&gt; s.replaceAll(&quot;\\s+&quot;, &quot; &quot;))
+            .agregar(String::toUpperCase)
+            .agregar(s -&gt; &quot;&gt;&gt; &quot; + s);
+
+        System.out.println(pipeline.procesar(&quot;  hola   mundo  &quot;));
+        // &gt;&gt; HOLA MUNDO
+    }
+}</pre></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box"><div class="mermaid">flowchart LR
+    I([Entrada]) --> F1[Filtro 1<br/>Limpiar] --> F2[Filtro 2<br/>Normalizar] --> F3[Filtro 3<br/>Transformar] --> O([Salida])</div></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Apache Camel</li><li>Spring Integration</li><li>Apache NiFi</li><li>Unix shell pipes</li><li>Node.js Transform Streams</li><li>Logstash (pipeline de logs)</li></ul>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando los pasos tienen dependencias de estado complejas entre ellos; el modelo stateless de los filtros no aplica.</li><li>Si la latencia acumulada de cada filtro es inaceptable para el caso de uso.</li><li>Para lógica de decisión compleja con muchas ramas; usa Router en su lugar.</li></ul>
+  </div>
+</div>
+<footer><p>Patrones de Diseño — Referencia en Español</p></footer>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

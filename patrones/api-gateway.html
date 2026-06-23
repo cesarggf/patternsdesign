@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>API Gateway — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#0891b2">Integración</div>
+    <h1>API Gateway</h1>
+    <p class="patron-desc">Proveer un punto de entrada único para todos los clientes que acceden a los servicios backend, centralizando corte transversal como autenticación, rate limiting, logging y enrutamiento.</p>
+    <span class="patron-badge pb-Integración">Integración</span>
+  </div>
+</div>
+<div class="content-wrapper">
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>API Gateway actúa como proxy inverso inteligente delante de los microservicios. Recibe todas las peticiones externas, aplica políticas globales (auth, throttling, transformación) y las redirige al servicio correspondiente. Evita que los clientes conozcan la topología interna y simplifica la gestión de la API pública.</p>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem"><strong>1. Plataforma móvil + web</strong><p style="margin-top:.35rem">App móvil y SPA web llaman al mismo gateway; este enruta a user-service, product-service y order-service.</p></div>
+    <div><strong>2. Agregación de respuestas (BFF)</strong><p style="margin-top:.35rem">El gateway llama a tres microservicios en paralelo y combina la respuesta en un solo payload para el cliente.</p></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active"><div class="code-lang">JavaScript</div><pre>const express = require('express');
+// Simulación — sin require real de http-proxy
+
+class ApiGateway {
+  constructor() {
+    this.app = express();
+    this.rutas = {};
+    this.middlewares = [];
+  }
+
+  usarMiddleware(fn) { this.middlewares.push(fn); return this; }
+
+  registrar(prefijo, servicioUrl) {
+    this.rutas[prefijo] = servicioUrl; return this;
+  }
+
+  iniciar(puerto) {
+    this.app.use(express.json());
+
+    // Aplicar middlewares globales
+    this.middlewares.forEach(mw =&gt; this.app.use(mw));
+
+    // Enrutamiento dinámico
+    this.app.use((req, res) =&gt; {
+      const prefijo = Object.keys(this.rutas).find(p =&gt; req.path.startsWith(p));
+      if (!prefijo) return res.status(404).json({ error: 'Servicio no encontrado' });
+      console.log(`[Gateway] ${req.method} ${req.path} → ${this.rutas[prefijo]}`);
+      res.json({ proxied_to: this.rutas[prefijo], path: req.path });
+    });
+
+    this.app.listen(puerto, () =&gt; console.log(`Gateway en :${puerto}`));
+  }
+}
+
+// Middlewares de corte transversal
+const autenticar = (req, res, next) =&gt; {
+  if (!req.headers.authorization) return res.status(401).json({ error: 'No autorizado' });
+  next();
+};
+const rateLimiter = (() =&gt; {
+  const contadores = {};
+  return (req, res, next) =&gt; {
+    const ip = req.ip;
+    contadores[ip] = (contadores[ip] || 0) + 1;
+    if (contadores[ip] &gt; 100) return res.status(429).json({ error: 'Too many requests' });
+    next();
+  };
+})();
+
+const gw = new ApiGateway()
+  .usarMiddleware(autenticar)
+  .usarMiddleware(rateLimiter)
+  .registrar('/usuarios',  'http://user-service:3001')
+  .registrar('/productos', 'http://product-service:3002')
+  .registrar('/pedidos',   'http://order-service:3003');
+
+gw.iniciar(8080);</pre></div>
+    <div id="tab-java" class="tab-content"><div class="code-lang">Java</div><pre>@RestController
+@RequestMapping(&quot;/api&quot;)
+public class ApiGatewayController {
+    private Map&lt;String, String&gt; rutas = Map.of(
+        &quot;/usuarios&quot;,  &quot;http://user-service:3001&quot;,
+        &quot;/productos&quot;, &quot;http://product-service:3002&quot;,
+        &quot;/pedidos&quot;,   &quot;http://order-service:3003&quot;
+    );
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @RequestMapping(&quot;/**&quot;)
+    public ResponseEntity&lt;?&gt; proxy(HttpServletRequest req) {
+        String path = req.getRequestURI().replaceFirst(&quot;/api&quot;, &quot;&quot;);
+        String prefijo = rutas.keySet().stream()
+            .filter(path::startsWith).findFirst().orElse(null);
+        if (prefijo == null) return ResponseEntity.notFound().build();
+
+        String destino = rutas.get(prefijo) + path;
+        System.out.println(&quot;[Gateway] → &quot; + destino);
+        return restTemplate.getForEntity(destino, String.class);
+    }
+}</pre></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box"><div class="mermaid">flowchart LR
+    M[App Móvil] --> GW[API Gateway]
+    W[SPA Web]   --> GW
+    GW -->|auth, rate limit| GW
+    GW -->|/usuarios|  US[User Service]
+    GW -->|/productos| PS[Product Service]
+    GW -->|/pedidos|   OS[Order Service]</div></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>AWS API Gateway</li><li>Kong</li><li>nginx</li><li>Traefik</li><li>Spring Cloud Gateway</li><li>Azure API Management</li><li>Apigee</li></ul>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando solo tienes un monolito o un par de servicios; añade latencia y complejidad sin beneficio.</li><li>Si el gateway se convierte en un cuello de botella único sin alta disponibilidad.</li><li>Para comunicación interna entre microservicios; usa service mesh (Istio, Linkerd).</li></ul>
+  </div>
+</div>
+<footer><p>Patrones de Diseño — Referencia en Español</p></footer>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Microservicios — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#be123c">Arquitectura</div>
+    <h1>Microservicios</h1>
+    <p class="patron-desc">Descomponer una aplicación en servicios pequeños, independientes y desplegables por separado, cada uno responsable de una capacidad de negocio específica.</p>
+    <span class="patron-badge pb-Arquitectura">Arquitectura</span>
+  </div>
+</div>
+<div class="content-wrapper">
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>La arquitectura de microservicios organiza una aplicación como una colección de servicios pequeños que se ejecutan en procesos separados y se comunican mediante APIs bien definidas (REST, gRPC, mensajería). Cada servicio tiene su propia base de datos, puede desplegarse y escalarse independientemente, y pertenece a un equipo autónomo.</p>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem"><strong>1. Plataforma de e-commerce</strong><p style="margin-top:.35rem">Servicios separados: Catálogo, Carrito, Pedidos, Pagos, Inventario, Notificaciones — cada uno con su BD y equipo.</p></div>
+    <div><strong>2. Plataforma de streaming</strong><p style="margin-top:.35rem">Servicios: Autenticación, Catálogo de contenido, Recomendaciones, Reproductor, Facturación — escalados independientemente.</p></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active"><div class="code-lang">JavaScript</div><pre>// Simulación de tres microservicios con comunicación HTTP interna
+const express = require('express');
+
+// Servicio de Usuarios (puerto 3001)
+function crearServicioUsuarios() {
+  const app = express();
+  app.use(express.json());
+  const usuarios = new Map([[1, { id: 1, nombre: 'Cesar', email: 'cesar@example.com' }]]);
+  app.get('/usuarios/:id', (req, res) =&gt; {
+    const u = usuarios.get(parseInt(req.params.id));
+    u ? res.json(u) : res.status(404).json({ error: 'No encontrado' });
+  });
+  return app.listen(3001, () =&gt; console.log('UserService :3001'));
+}
+
+// Servicio de Pedidos (puerto 3002) — llama a UserService
+function crearServicioPedidos() {
+  const app = express();
+  app.use(express.json());
+  app.post('/pedidos', async (req, res) =&gt; {
+    const { usuarioId, items } = req.body;
+    try {
+      // Llamada inter-servicio
+      const resp = await fetch(`http://localhost:3001/usuarios/${usuarioId}`);
+      if (!resp.ok) return res.status(404).json({ error: 'Usuario no encontrado' });
+      const usuario = await resp.json();
+      const pedido  = { id: Date.now(), usuario: usuario.nombre, items, estado: 'creado' };
+      res.status(201).json(pedido);
+    } catch (e) {
+      res.status(503).json({ error: 'UserService no disponible' });
+    }
+  });
+  return app.listen(3002, () =&gt; console.log('OrderService :3002'));
+}
+
+crearServicioUsuarios();
+crearServicioPedidos();</pre></div>
+    <div id="tab-java" class="tab-content"><div class="code-lang">Java</div><pre>// Servicio de Pedidos — llama a UserService via REST
+@RestController @RequestMapping(&quot;/pedidos&quot;)
+public class PedidoController {
+    private final RestTemplate restTemplate;
+    private final String userServiceUrl = &quot;http://user-service/usuarios&quot;;
+
+    @PostMapping
+    public ResponseEntity&lt;Pedido&gt; crearPedido(@RequestBody NuevoPedidoDto dto) {
+        // Llamada inter-servicio con circuit breaker (Resilience4j)
+        UsuarioDto usuario = restTemplate.getForObject(
+            userServiceUrl + &quot;/&quot; + dto.usuarioId(), UsuarioDto.class);
+        if (usuario == null)
+            return ResponseEntity.notFound().build();
+        Pedido pedido = new Pedido(usuario.nombre(), dto.items());
+        return ResponseEntity.status(201).body(pedido);
+    }
+}
+
+// application.yml con Spring Cloud
+// spring.application.name: order-service
+// eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/</pre></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box"><div class="mermaid">flowchart TB
+    GW[API Gateway] --> US[User Service<br/>:3001]
+    GW --> OS[Order Service<br/>:3002]
+    GW --> PS[Payment Service<br/>:3003]
+    US --- UDB[(Users DB)]
+    OS --- ODB[(Orders DB)]
+    PS --- PDB[(Payments DB)]
+    OS -->|REST| US
+    OS -->|evento| PS</div></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Netflix OSS (Eureka, Hystrix, Zuul)</li><li>Spring Cloud</li><li>Kubernetes + Helm</li><li>Docker Compose</li><li>Istio (service mesh)</li><li>Consul (service discovery)</li></ul>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Para startups o MVPs; el overhead operacional (CI/CD, service discovery, observabilidad) es enorme.</li><li>Cuando el equipo es pequeño y no puede gestionar la complejidad distribuida.</li><li>Si la latencia de red entre servicios es inaceptable para el caso de uso.</li><li>Monolito primero (Martin Fowler): empieza monolítico y extrae microservicios cuando los límites sean claros.</li></ul>
+  </div>
+</div>
+<footer><p>Patrones de Diseño — Referencia en Español</p></footer>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

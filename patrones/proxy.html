@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Proxy — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -142,6 +143,12 @@ public class ProxyUsuarios implements IServicioUsuarios {
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Cuando el objeto es barato de crear y no requiere control de acceso ni caché.</li><li>Si el Proxy introduce latencia perceptible sin un beneficio concreto.</li><li>Para lógica de negocio compleja, Decorator o Middleware son más apropiados.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Spring AOP (JDK Proxy / CGLIB)</li><li>Hibernate Lazy Loading (Proxy de entidades)</li><li>Java RMI (stub como proxy remoto)</li><li>nginx / HAProxy (proxy inverso)</li><li>Java java.lang.reflect.Proxy</li></ul>
   </div>
 
 </div>

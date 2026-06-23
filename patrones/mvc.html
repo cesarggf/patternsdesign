@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MVC (Model-View-Controller) — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#be123c">Arquitectura</div>
+    <h1>MVC (Model-View-Controller)</h1>
+    <p class="patron-desc">Separar una aplicación en tres componentes — Modelo, Vista y Controlador — para desacoplar la lógica de negocio, la presentación y la gestión de entradas.</p>
+    <span class="patron-badge pb-Arquitectura">Arquitectura</span>
+  </div>
+</div>
+<div class="content-wrapper">
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>En MVC el Modelo gestiona los datos y la lógica de negocio; la Vista muestra la información al usuario; el Controlador intercepta las entradas del usuario, actualiza el Modelo y selecciona la Vista adecuada. Las variantes modernas separan aún más las responsabilidades en MVP y MVVM.</p>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem"><strong>1. Aplicación web de gestión de tareas</strong><p style="margin-top:.35rem">El Modelo gestiona las tareas en BD, el Controlador procesa las peticiones HTTP, las Vistas renderizan el HTML.</p></div>
+    <div><strong>2. Aplicación de escritorio</strong><p style="margin-top:.35rem">Un editor de texto: el Modelo es el documento, la Vista es el área de texto, el Controlador maneja teclas y menús.</p></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active"><div class="code-lang">JavaScript</div><pre>// Modelo
+class ModeloTareas {
+  constructor() { this.tareas = []; this.listeners = []; }
+  agregar(texto) {
+    this.tareas.push({ id: Date.now(), texto, completada: false });
+    this.notificar();
+  }
+  completar(id) {
+    const t = this.tareas.find(t =&gt; t.id === id);
+    if (t) { t.completada = true; this.notificar(); }
+  }
+  onChange(fn) { this.listeners.push(fn); }
+  notificar() { this.listeners.forEach(fn =&gt; fn(this.tareas)); }
+}
+
+// Vista
+class VistaTareas {
+  renderizar(tareas) {
+    console.log('=== Mis Tareas ===');
+    tareas.forEach(t =&gt;
+      console.log(`[${t.completada ? '✓' : ' '}] ${t.id}: ${t.texto}`));
+  }
+  mostrarError(msg) { console.error('Error:', msg); }
+}
+
+// Controlador
+class ControladorTareas {
+  constructor(modelo, vista) {
+    this.modelo = modelo;
+    this.vista  = vista;
+    modelo.onChange(tareas =&gt; vista.renderizar(tareas));
+  }
+  agregarTarea(texto) {
+    if (!texto.trim()) return this.vista.mostrarError('El texto no puede estar vacío');
+    this.modelo.agregar(texto);
+  }
+  completarTarea(id) { this.modelo.completar(id); }
+}
+
+const modelo = new ModeloTareas();
+const vista  = new VistaTareas();
+const ctrl   = new ControladorTareas(modelo, vista);
+
+ctrl.agregarTarea('Estudiar patrones de diseño');
+ctrl.agregarTarea('Practicar con ejemplos');
+ctrl.completarTarea(modelo.tareas[0].id);</pre></div>
+    <div id="tab-java" class="tab-content"><div class="code-lang">Java</div><pre>// Modelo
+public class Tarea {
+    public int id; public String texto; public boolean completada;
+    public Tarea(int id, String texto) { this.id=id; this.texto=texto; }
+}
+
+public class ModeloTareas {
+    private List&lt;Tarea&gt; tareas = new ArrayList&lt;&gt;();
+    private List&lt;Runnable&gt; listeners = new ArrayList&lt;&gt;();
+    private int nextId = 1;
+
+    public void agregar(String texto) {
+        tareas.add(new Tarea(nextId++, texto));
+        listeners.forEach(Runnable::run);
+    }
+    public List&lt;Tarea&gt; getTareas() { return tareas; }
+    public void onChange(Runnable fn) { listeners.add(fn); }
+}
+
+// Vista
+public class VistaTareas {
+    public void renderizar(List&lt;Tarea&gt; tareas) {
+        System.out.println(&quot;=== Mis Tareas ===&quot;);
+        tareas.forEach(t -&gt;
+            System.out.println(&quot;[&quot; + (t.completada?&quot;✓&quot;:&quot; &quot;) + &quot;] &quot; + t.texto));
+    }
+}
+
+// Controlador
+public class ControladorTareas {
+    private ModeloTareas modelo; private VistaTareas vista;
+    public ControladorTareas(ModeloTareas m, VistaTareas v) {
+        modelo=m; vista=v;
+        m.onChange(() -&gt; v.renderizar(m.getTareas()));
+    }
+    public void agregarTarea(String texto) { modelo.agregar(texto); }
+}</pre></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box"><div class="mermaid">flowchart LR
+    U([Usuario]) -->|acción| C[Controlador]
+    C -->|actualiza| M[Modelo]
+    M -->|notifica| V[Vista]
+    V -->|renderiza| U</div></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Spring MVC</li><li>Ruby on Rails</li><li>Django</li><li>ASP.NET MVC</li><li>Laravel</li><li>Angular (adaptado)</li></ul>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Para aplicaciones muy simples con una sola pantalla y sin lógica de negocio.</li><li>Cuando el Controlador acumula demasiada lógica y se convierte en un 'fat controller'; usa MVVM o Clean Architecture.</li><li>En interfaces con estado complejo y reactivo donde frameworks como React con Redux son más naturales.</li></ul>
+  </div>
+</div>
+<footer><p>Patrones de Diseño — Referencia en Español</p></footer>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

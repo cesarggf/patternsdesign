@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Message Router — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#0891b2">Integración</div>
+    <h1>Message Router</h1>
+    <p class="patron-desc">Encaminar mensajes a distintos canales de destino según el contenido o propiedades del mensaje, sin que el productor conozca los destinos.</p>
+    <span class="patron-badge pb-Integración">Integración</span>
+  </div>
+</div>
+<div class="content-wrapper">
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>El Message Router inspecciona cada mensaje y decide a qué canal enviarlo. Desacopla al emisor de los receptores concretos. Variantes comunes: Content-Based Router (por contenido), Recipient List (a múltiples destinos), Splitter (divide un mensaje en partes) y Aggregator (combina varios mensajes en uno).</p>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem"><strong>1. Enrutamiento de pagos</strong><p style="margin-top:.35rem">Un router dirige pagos a Stripe, PayPal o transferencia bancaria según el método elegido por el usuario.</p></div>
+    <div><strong>2. Clasificación de alertas</strong><p style="margin-top:.35rem">Alertas de monitoreo se enrutan a PagerDuty (crítico), Slack (warning) o se descartan (info).</p></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active"><div class="code-lang">JavaScript</div><pre>class RouterMensajes {
+  constructor() { this.rutas = []; this.defaultFn = null; }
+
+  cuando(condicion, handler) { this.rutas.push({ condicion, handler }); return this; }
+  porDefecto(handler) { this.defaultFn = handler; return this; }
+
+  enrutar(mensaje) {
+    const ruta = this.rutas.find(r =&gt; r.condicion(mensaje));
+    if (ruta) return ruta.handler(mensaje);
+    if (this.defaultFn) return this.defaultFn(mensaje);
+    console.warn('Sin ruta para:', mensaje);
+  }
+}
+
+// Tipos de pago
+const router = new RouterMensajes()
+  .cuando(m =&gt; m.metodo === 'tarjeta',    m =&gt; console.log(`[Stripe] procesando $${m.monto}`))
+  .cuando(m =&gt; m.metodo === 'paypal',     m =&gt; console.log(`[PayPal] procesando $${m.monto}`))
+  .cuando(m =&gt; m.metodo === 'transferencia', m =&gt; console.log(`[Banco] procesando $${m.monto}`))
+  .porDefecto(m =&gt; console.log(`[Error] Método desconocido: ${m.metodo}`));
+
+router.enrutar({ metodo: 'tarjeta',      monto: 99.99 });
+router.enrutar({ metodo: 'paypal',       monto: 49.00 });
+router.enrutar({ metodo: 'criptomoneda', monto: 0.01 });</pre></div>
+    <div id="tab-java" class="tab-content"><div class="code-lang">Java</div><pre>import java.util.*;
+import java.util.function.*;
+
+public class RouterMensajes&lt;T&gt; {
+    record Ruta&lt;T&gt;(Predicate&lt;T&gt; condicion, Consumer&lt;T&gt; handler) {}
+    private List&lt;Ruta&lt;T&gt;&gt; rutas = new ArrayList&lt;&gt;();
+    private Consumer&lt;T&gt; defaultHandler;
+
+    public RouterMensajes&lt;T&gt; cuando(Predicate&lt;T&gt; cond, Consumer&lt;T&gt; handler) {
+        rutas.add(new Ruta&lt;&gt;(cond, handler)); return this;
+    }
+    public RouterMensajes&lt;T&gt; porDefecto(Consumer&lt;T&gt; h) { defaultHandler = h; return this; }
+
+    public void enrutar(T mensaje) {
+        rutas.stream().filter(r -&gt; r.condicion().test(mensaje)).findFirst()
+             .ifPresentOrElse(r -&gt; r.handler().accept(mensaje),
+                              () -&gt; { if (defaultHandler != null) defaultHandler.accept(mensaje); });
+    }
+}</pre></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box"><div class="mermaid">flowchart TD
+    M([Mensaje]) --> R{Router}
+    R -->|metodo=tarjeta| S[Stripe]
+    R -->|metodo=paypal| P[PayPal]
+    R -->|metodo=transferencia| B[Banco]
+    R -->|default| E[Error Handler]</div></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Apache Camel (Content-Based Router)</li><li>Spring Integration Router</li><li>AWS EventBridge Rules</li><li>RabbitMQ (routing keys)</li><li>MuleSoft Choice Router</li><li>Azure Logic Apps</li></ul>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando la lógica de enrutamiento es tan compleja que el router se convierte en un bottleneck.</li><li>Si los destinos cambian con tanta frecuencia que el router requiere redespliegues constantes; usa reglas externalizadas.</li><li>Para sistemas simples con un único destino fijo.</li></ul>
+  </div>
+</div>
+<footer><p>Patrones de Diseño — Referencia en Español</p></footer>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

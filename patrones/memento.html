@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Memento — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -137,6 +138,12 @@ public class HistorialEditor {
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Cuando el estado del objeto es muy grande, guardar copias frecuentes puede consumir demasiada memoria.</li><li>Si el historial no es una funcionalidad requerida, el patrón agrega complejidad innecesaria.</li><li>Para estados que contienen referencias a objetos externos, la captura puede ser incompleta.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Undo/Redo en IntelliJ IDEA, VS Code, Word</li><li>Git stash / git checkout</li><li>Base de datos: SAVEPOINT en transacciones SQL</li><li>Redux DevTools (time-travel debugging)</li><li>Photoshop History panel</li></ul>
   </div>
 
 </div>

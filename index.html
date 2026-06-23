@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Patrones de Diseño GoF — Referencia en Español</title>
+<title>Patrones de Diseño — Referencia en Español</title>
 <link rel="stylesheet" href="css/estilos.css">
+<script src="js/tema.js"></script>
 </head>
 <body>
 
@@ -15,27 +16,30 @@
 </nav>
 
 <div class="hero">
-  <h1>Patrones de Diseño GoF</h1>
-  <p>Referencia completa de los 23 patrones clásicos con ejemplos en JavaScript y Java, diagramas y guías de uso.</p>
+  <h1>Patrones de Diseño</h1>
+  <p>Referencia completa: patrones GoF, de Integración y de Arquitectura — con ejemplos en JavaScript y Java, diagramas y guías de uso.</p>
   <div class="hero-stats">
-    <div class="hero-stat"><strong>23</strong><span>Patrones</span></div>
-    <div class="hero-stat"><strong>3</strong><span>Categorías</span></div>
-    <div class="hero-stat"><strong>46</strong><span>Ejemplos de código</span></div>
+    <div class="hero-stat"><strong>40</strong><span>Patrones</span></div>
+    <div class="hero-stat"><strong>5</strong><span>Categorías</span></div>
+    <div class="hero-stat"><strong>80</strong><span>Ejemplos de código</span></div>
     <div class="hero-stat"><strong>ES</strong><span>100% en español</span></div>
   </div>
 </div>
 
 <div class="filters">
-  <button class="filter-btn active" data-cat="Todos" onclick="filtrar(this)">Todos (23)</button>
-  <button class="filter-btn" data-cat="Creacional" onclick="filtrar(this)">🟢 Creacionales (5)</button>
-  <button class="filter-btn" data-cat="Estructural" onclick="filtrar(this)">🟡 Estructurales (7)</button>
-  <button class="filter-btn" data-cat="Comportamiento" onclick="filtrar(this)">🟣 Comportamiento (11)</button>
+  <button class="filter-btn active" data-cat="Todos"          onclick="filtrar(this)">Todos (40)</button>
+  <button class="filter-btn" data-cat="Creacional"            onclick="filtrar(this)">🟢 Creacionales (5)</button>
+  <button class="filter-btn" data-cat="Estructural"           onclick="filtrar(this)">🟡 Estructurales (7)</button>
+  <button class="filter-btn" data-cat="Comportamiento"        onclick="filtrar(this)">🟣 Comportamiento (11)</button>
+  <button class="filter-btn" data-cat="Integración"           onclick="filtrar(this)">🔵 Integración (9)</button>
+  <button class="filter-btn" data-cat="Arquitectura"          onclick="filtrar(this)">🔴 Arquitectura (8)</button>
 </div>
 
 <div class="grid-section">
 
+  <!-- ── CREACIONALES ── -->
   <div class="cat-creacional" id="sec-Creacional">
-    <div class="category-title">🟢 Patrones Creacionales</div>
+    <div class="category-title">🟢 Patrones Creacionales <span style="font-weight:400;font-size:.85rem;color:var(--text-muted)">(GoF)</span></div>
     <div class="cards">
       <a href="patrones/singleton.html" class="card creacional" data-cat="Creacional">
         <span class="card-badge badge-Creacional">Creacional</span>
@@ -65,8 +69,9 @@
     </div>
   </div>
 
+  <!-- ── ESTRUCTURALES ── -->
   <div class="cat-estructural" id="sec-Estructural">
-    <div class="category-title">🟡 Patrones Estructurales</div>
+    <div class="category-title">🟡 Patrones Estructurales <span style="font-weight:400;font-size:.85rem;color:var(--text-muted)">(GoF)</span></div>
     <div class="cards">
       <a href="patrones/adapter.html" class="card estructural" data-cat="Estructural">
         <span class="card-badge badge-Estructural">Estructural</span>
@@ -106,8 +111,9 @@
     </div>
   </div>
 
+  <!-- ── COMPORTAMIENTO ── -->
   <div class="cat-comportamiento" id="sec-Comportamiento">
-    <div class="category-title">🟣 Patrones de Comportamiento</div>
+    <div class="category-title">🟣 Patrones de Comportamiento <span style="font-weight:400;font-size:.85rem;color:var(--text-muted)">(GoF)</span></div>
     <div class="cards">
       <a href="patrones/chain-of-responsibility.html" class="card comportamiento" data-cat="Comportamiento">
         <span class="card-badge badge-Comportamiento">Comportamiento</span>
@@ -167,25 +173,123 @@
     </div>
   </div>
 
+  <!-- ── INTEGRACIÓN ── -->
+  <div class="cat-integracion" id="sec-Integración">
+    <div class="category-title">🔵 Patrones de Integración <span style="font-weight:400;font-size:.85rem;color:var(--text-muted)">(Enterprise Integration Patterns)</span></div>
+    <div class="cards">
+      <a href="patrones/message-channel.html" class="card" data-cat="Integración">
+        <span class="card-badge badge-Integración">Integración</span>
+        <h3>Message Channel</h3>
+        <p>Canal de mensajes que desacopla emisor y receptor en sistemas distribuidos.</p>
+      </a>
+      <a href="patrones/pipes-and-filters.html" class="card" data-cat="Integración">
+        <span class="card-badge badge-Integración">Integración</span>
+        <h3>Pipes and Filters</h3>
+        <p>Pipeline de procesamiento con filtros independientes conectados por canales.</p>
+      </a>
+      <a href="patrones/message-router.html" class="card" data-cat="Integración">
+        <span class="card-badge badge-Integración">Integración</span>
+        <h3>Message Router</h3>
+        <p>Encamina mensajes a distintos destinos según su contenido o propiedades.</p>
+      </a>
+      <a href="patrones/message-translator.html" class="card" data-cat="Integración">
+        <span class="card-badge badge-Integración">Integración</span>
+        <h3>Message Translator</h3>
+        <p>Transforma el formato de un mensaje para que sea compatible con el sistema destino.</p>
+      </a>
+      <a href="patrones/publish-subscribe.html" class="card" data-cat="Integración">
+        <span class="card-badge badge-Integración">Integración</span>
+        <h3>Publish-Subscribe</h3>
+        <p>Difunde mensajes a múltiples suscriptores sin que el emisor los conozca.</p>
+      </a>
+      <a href="patrones/dead-letter-channel.html" class="card" data-cat="Integración">
+        <span class="card-badge badge-Integración">Integración</span>
+        <h3>Dead Letter Channel</h3>
+        <p>Redirige mensajes no procesables a un canal especial para inspección y recuperación.</p>
+      </a>
+      <a href="patrones/saga.html" class="card" data-cat="Integración">
+        <span class="card-badge badge-Integración">Integración</span>
+        <h3>Saga</h3>
+        <p>Gestiona transacciones distribuidas con compensaciones automáticas en caso de fallo.</p>
+      </a>
+      <a href="patrones/api-gateway.html" class="card" data-cat="Integración">
+        <span class="card-badge badge-Integración">Integración</span>
+        <h3>API Gateway</h3>
+        <p>Punto de entrada único que centraliza autenticación, enrutamiento y políticas globales.</p>
+      </a>
+      <a href="patrones/correlation-id.html" class="card" data-cat="Integración">
+        <span class="card-badge badge-Integración">Integración</span>
+        <h3>Correlation ID</h3>
+        <p>Identificador único que rastrea un flujo de mensajes a través de múltiples servicios.</p>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── ARQUITECTURA ── -->
+  <div class="cat-arquitectura" id="sec-Arquitectura">
+    <div class="category-title">🔴 Patrones de Arquitectura <span style="font-weight:400;font-size:.85rem;color:var(--text-muted)">(Architectural Patterns)</span></div>
+    <div class="cards">
+      <a href="patrones/mvc.html" class="card" data-cat="Arquitectura">
+        <span class="card-badge badge-Arquitectura">Arquitectura</span>
+        <h3>MVC</h3>
+        <p>Separa Modelo, Vista y Controlador para desacoplar datos, presentación y entrada.</p>
+      </a>
+      <a href="patrones/mvvm.html" class="card" data-cat="Arquitectura">
+        <span class="card-badge badge-Arquitectura">Arquitectura</span>
+        <h3>MVVM</h3>
+        <p>ViewModel observable con data-binding bidireccional para interfaces reactivas.</p>
+      </a>
+      <a href="patrones/layered-architecture.html" class="card" data-cat="Arquitectura">
+        <span class="card-badge badge-Arquitectura">Arquitectura</span>
+        <h3>Arquitectura en Capas</h3>
+        <p>Organiza el sistema en capas horizontales con responsabilidades bien definidas.</p>
+      </a>
+      <a href="patrones/hexagonal.html" class="card" data-cat="Arquitectura">
+        <span class="card-badge badge-Arquitectura">Arquitectura</span>
+        <h3>Hexagonal (Ports &amp; Adapters)</h3>
+        <p>Aísla el core de dominio de los detalles tecnológicos mediante puertos y adaptadores.</p>
+      </a>
+      <a href="patrones/cqrs.html" class="card" data-cat="Arquitectura">
+        <span class="card-badge badge-Arquitectura">Arquitectura</span>
+        <h3>CQRS</h3>
+        <p>Separa modelos de lectura y escritura para optimizar cada uno independientemente.</p>
+      </a>
+      <a href="patrones/event-sourcing.html" class="card" data-cat="Arquitectura">
+        <span class="card-badge badge-Arquitectura">Arquitectura</span>
+        <h3>Event Sourcing</h3>
+        <p>Persiste el estado como log inmutable de eventos en lugar del estado actual.</p>
+      </a>
+      <a href="patrones/microservices.html" class="card" data-cat="Arquitectura">
+        <span class="card-badge badge-Arquitectura">Arquitectura</span>
+        <h3>Microservicios</h3>
+        <p>Servicios pequeños e independientes, cada uno con su BD y desplegable por separado.</p>
+      </a>
+      <a href="patrones/event-driven.html" class="card" data-cat="Arquitectura">
+        <span class="card-badge badge-Arquitectura">Arquitectura</span>
+        <h3>Orientada a Eventos</h3>
+        <p>Comunicación asíncrona mediante eventos para máximo desacoplamiento entre servicios.</p>
+      </a>
+    </div>
+  </div>
+
 </div>
 
 <footer>
-  <p>Patrones de Diseño GoF &mdash; Referencia en Español &mdash; GitHub Pages Ready</p>
+  <p>Patrones de Diseño GoF · Integración · Arquitectura — Referencia en Español · GitHub Pages Ready</p>
 </footer>
 
 <script>
+const SECCIONES = ['Creacional','Estructural','Comportamiento','Integración','Arquitectura'];
 function filtrar(btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   const cat = btn.dataset.cat;
   document.querySelectorAll('.card').forEach(card => {
-    const show = cat === 'Todos' || card.dataset.cat === cat;
-    card.style.display = show ? '' : 'none';
+    card.style.display = (cat === 'Todos' || card.dataset.cat === cat) ? '' : 'none';
   });
-  ['Creacional','Estructural','Comportamiento'].forEach(c => {
+  SECCIONES.forEach(c => {
     const sec = document.getElementById('sec-' + c);
-    if (cat === 'Todos' || cat === c) sec.style.display = '';
-    else sec.style.display = 'none';
+    if (sec) sec.style.display = (cat === 'Todos' || cat === c) ? '' : 'none';
   });
 }
 </script>

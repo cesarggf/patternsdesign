@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>State — Patrones de Diseño</title>
 <link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
 <body>
@@ -134,6 +135,12 @@ public class EstadoReproduciendo implements EstadoReproductor {
   <div class="section">
     <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
     <ul><li>Cuando solo hay dos estados y la lógica es trivial; un boolean es más claro.</li><li>Si las transiciones de estado son pocas y simples, los condicionales son más legibles.</li><li>Demasiados estados sin relación entre sí pueden producir una explosión de clases.</li></ul>
+  </div>
+
+
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Spring StateMachine</li><li>XState (JavaScript)</li><li>TCP/IP connection states (kernel)</li><li>Workflow engines: Activiti, Flowable</li><li>Unity Animator StateMachine</li></ul>
   </div>
 
 </div>

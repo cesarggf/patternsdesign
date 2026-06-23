@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arquitectura en Capas — Patrones de Diseño</title>
+<link rel="stylesheet" href="../css/estilos.css">
+<script src="../js/tema.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">🏗 Patrones de <span>Diseño</span></a>
+    <a class="nav-back" href="../index.html">← Volver al índice</a>
+  </div>
+</nav>
+<div class="patron-hero">
+  <div class="patron-hero-inner">
+    <div class="patron-category" style="color:#be123c">Arquitectura</div>
+    <h1>Arquitectura en Capas</h1>
+    <p class="patron-desc">Organizar el código en capas horizontales con responsabilidades bien definidas, donde cada capa solo puede interactuar con la capa inmediatamente inferior.</p>
+    <span class="patron-badge pb-Arquitectura">Arquitectura</span>
+  </div>
+</div>
+<div class="content-wrapper">
+  <div class="section">
+    <h2><span class="icon">📖</span> Descripción</h2>
+    <p>La arquitectura en capas (N-Tier) divide el sistema en: Presentación (UI/API), Aplicación (casos de uso), Dominio (lógica de negocio) e Infraestructura (BD, servicios externos). Cada capa tiene una responsabilidad única y depende solo de la capa de abajo. Facilita el testing, el reemplazo de implementaciones y la organización del equipo.</p>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🎯</span> Casos de uso prácticos</h2>
+    <div style="margin-bottom:1rem"><strong>1. API REST de e-commerce</strong><p style="margin-top:.35rem">Controller → Service → Repository → Database. Cada capa tiene su responsabilidad y puede testearse independientemente.</p></div>
+    <div><strong>2. Sistema bancario</strong><p style="margin-top:.35rem">Presentación (web/móvil) → Aplicación (transferencias, consultas) → Dominio (reglas contables) → Infraestructura (core bancario).</p></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">💻</span> Ejemplos de código</h2>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mostrarTab(this,'tab-js')">JavaScript</button>
+      <button class="tab-btn" onclick="mostrarTab(this,'tab-java')">Java</button>
+    </div>
+    <div id="tab-js" class="tab-content active"><div class="code-lang">JavaScript</div><pre>// Capa de Dominio — entidades y reglas de negocio
+class Usuario {
+  constructor(id, nombre, email) {
+    if (!email.includes('@')) throw new Error('Email inválido');
+    this.id = id; this.nombre = nombre; this.email = email;
+  }
+}
+
+// Capa de Repositorio — acceso a datos
+class RepositorioUsuarios {
+  constructor() { this.db = new Map(); }
+  guardar(usuario)    { this.db.set(usuario.id, usuario); return usuario; }
+  buscarPorId(id)     { return this.db.get(id) || null; }
+  buscarPorEmail(email) {
+    return [...this.db.values()].find(u =&gt; u.email === email) || null;
+  }
+}
+
+// Capa de Servicio (Aplicación) — casos de uso
+class ServicioUsuarios {
+  constructor(repo) { this.repo = repo; }
+
+  registrar(nombre, email) {
+    if (this.repo.buscarPorEmail(email))
+      throw new Error('Email ya registrado');
+    const usuario = new Usuario(Date.now(), nombre, email);
+    return this.repo.guardar(usuario);
+  }
+
+  obtener(id) {
+    const u = this.repo.buscarPorId(id);
+    if (!u) throw new Error('Usuario no encontrado');
+    return u;
+  }
+}
+
+// Capa de Presentación — controlador HTTP
+class ControladorUsuarios {
+  constructor(servicio) { this.servicio = servicio; }
+
+  registrar(req) {
+    try {
+      const usuario = this.servicio.registrar(req.nombre, req.email);
+      return { status: 201, body: usuario };
+    } catch (e) {
+      return { status: 400, body: { error: e.message } };
+    }
+  }
+}
+
+// Composición de capas
+const repo  = new RepositorioUsuarios();
+const svc   = new ServicioUsuarios(repo);
+const ctrl  = new ControladorUsuarios(svc);
+
+console.log(ctrl.registrar({ nombre: 'Cesar', email: 'cesar@example.com' }));
+console.log(ctrl.registrar({ nombre: 'Cesar', email: 'cesar@example.com' })); // duplicado</pre></div>
+    <div id="tab-java" class="tab-content"><div class="code-lang">Java</div><pre>// Dominio
+public class Usuario {
+    private Long id; private String nombre, email;
+    public Usuario(Long id, String nombre, String email) {
+        if (!email.contains(&quot;@&quot;)) throw new IllegalArgumentException(&quot;Email inválido&quot;);
+        this.id=id; this.nombre=nombre; this.email=email;
+    }
+    // getters...
+}
+
+// Repositorio (Infraestructura)
+@Repository
+public interface UsuarioRepository extends JpaRepository&lt;Usuario, Long&gt; {
+    Optional&lt;Usuario&gt; findByEmail(String email);
+}
+
+// Servicio (Aplicación)
+@Service
+public class UsuarioService {
+    private final UsuarioRepository repo;
+    public UsuarioService(UsuarioRepository r) { repo=r; }
+
+    public Usuario registrar(String nombre, String email) {
+        if (repo.findByEmail(email).isPresent())
+            throw new RuntimeException(&quot;Email ya registrado&quot;);
+        return repo.save(new Usuario(null, nombre, email));
+    }
+}
+
+// Controlador (Presentación)
+@RestController @RequestMapping(&quot;/usuarios&quot;)
+public class UsuarioController {
+    private final UsuarioService svc;
+    public UsuarioController(UsuarioService s) { svc=s; }
+
+    @PostMapping
+    public ResponseEntity&lt;Usuario&gt; registrar(@RequestBody RegistroDto dto) {
+        return ResponseEntity.status(201).body(svc.registrar(dto.nombre(), dto.email()));
+    }
+}</pre></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">📊</span> Diagrama</h2>
+    <div class="diagram-box"><div class="mermaid">flowchart TB
+    P[Presentación<br/>Controller / API] --> A[Aplicación<br/>Services / Use Cases]
+    A --> D[Dominio<br/>Entities / Rules]
+    A --> I[Infraestructura<br/>Repository / BD / APIs]</div></div>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🛠️</span> Software que lo implementa</h2>
+    <ul><li>Spring Boot (Controller/Service/Repository)</li><li>Django (Views/Forms/Models)</li><li>ASP.NET Core</li><li>Ruby on Rails</li><li>NestJS</li><li>Laravel</li></ul>
+  </div>
+  <div class="section">
+    <h2><span class="icon">🚫</span> Cuándo NO usar</h2>
+    <ul><li>Cuando las capas se convierten en simples pass-through sin lógica propia (anemic layer anti-pattern).</li><li>Para microservicios muy pequeños donde la separación en 4 capas es excesiva.</li><li>Si el rendimiento es crítico; pasar por todas las capas agrega overhead.</li></ul>
+  </div>
+</div>
+<footer><p>Patrones de Diseño — Referencia en Español</p></footer>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+function mostrarTab(btn, tabId) {
+  btn.closest('.section').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.closest('.section').querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>
